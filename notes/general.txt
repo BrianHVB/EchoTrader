@@ -1,0 +1,3 @@
+JIRA Server install / config:
+
+https://confluence.atlassian.com/adminjiraserver071/installing-jira-applications-on-linux-802592173.html
