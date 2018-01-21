@@ -1,3 +1,24 @@
-JIRA Server install / config:
+JIRA:
+	Spent 3 hours trying to install server version on Ubuntu VPS, failed (think might rquire more than 1g mem)
+	Signed up for Cloud Free trial
+	
+	Based on start wizard questions, Jira choose Scrum SD process
+	
+	Users:
+		Brian Houle (google: brian.hvb) 	admin
+		Grim (grimzecho@gmail.com)			viewer
+		Steve Beaty							viewer
+		Shaid Foy							viewer
+		
+	Linked to GitHub account
+	
 
-https://confluence.atlassian.com/adminjiraserver071/installing-jira-applications-on-linux-802592173.html
+
+Repo: GitHub	https://github.com/BrianHVB/EchoTrader
+
+
+EchoTrader:
+	Process: Scrum
+	Repo: https://github.com/BrianHVB/EchoTrader
+	
+	
