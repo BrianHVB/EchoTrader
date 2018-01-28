@@ -22,3 +22,37 @@ EchoTrader:
 	Repo: https://github.com/BrianHVB/EchoTrader
 	
 	
+	
+	
+	
+User Stories - Drafts
+
+As someone interested in crypto-currencies I want to be able to quickly see a summary of market data for the past hour and day.
+
+As a day-trader, I want to be able to see real-time prices for the common crypto-currencies and exchanges.
+
+As a developer, I want to be able to quickly add new markets to the website.
+
+As a developer, I want to be able to have a simple webpage that shows live data from the GDAX exchange.
+
+
+As a developer, I want to learn how to create a SQL database that can store a large amount of market data.
+
+As a day-trader, I want to be able to easily query the database for historical market data.
+
+As a strategy developer, I want to have access to time normalized market data for Bitcoin.
+
+As a developer, I want to pull data from the GDAX exchange and store it in a database.
+
+
+As a strategy developer, I want to be able to run a simulation using a collection of strategies. I want the simulation to be able to simulate both historical and live data.
+
+As a day trader, I want the simulation engine to take into account the available quantity of currency at a given price.
+
+As a developer, I want to experiment with using the GDAX sandbox for testing live strategies.
+
+As a day trader, I want to be able to use the same strategy for both simulated and live trading.
+
+As a strategy developer, I want a documented API for creating and testing strategies.
+
+As a day trader, I need to know that my strategy will behave in a predictable manner when live trading.

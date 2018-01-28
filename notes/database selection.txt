@@ -1,0 +1,22 @@
+https://www.godaddy.com/help/key-differences-between-mysql-vs-postgresql-12392
+https://www.2ndquadrant.com/en/postgresql/postgresql-vs-mysql/
+
+mySQL
+	parittioning - proprietary, but has true clustering
+	lots of docuemntation and tooling
+	optimized for read-heavy operations
+	simple setup
+	ACL based security
+
+
+
+Postgres
+	table inheritance
+	adopts ANSI/ISO SQL standard. Implements full set of SQL
+	concurrent reads
+	better support for stored procedes
+	support for native objects
+	role based security
+	native ssl support
+	support w/ indexing for JSON
+	

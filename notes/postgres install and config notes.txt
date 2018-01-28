@@ -1,0 +1,227 @@
+Postgres Install / Config Notes:
+
+Ubuntu 16.04
+
+https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-16-04
+
+Cheat sheet:
+https://gist.github.com/Kartones/dd3ff5ec5ea238d4c546
+
+
+	sudo apt-get update
+	sudo apt-get install postgresql postgresql-contrib
+
+	
+Default Postgres used ident authentication. Matches role with *nix username.
+
+Database Cluster: A collection of db's managed by a single Postgres server instance
+
+Creates user/role named postgres with superuser (in postgres) permissions
+
+Postgres assumes that each role has an associated db w/ the same name
+
+Views are a key component of good SQL design. Views can be used any place a real table can
+
+	sudo -i -u postgres			switch user
+	psql						Postgres promt
+	psql -d [db-name]			Postgres prompt, connect to database
+	createuser --interactive	create new postgres role (outside prompt)
+	createdb [name]
+	dropdb [name]				physically removes database; cant be undone
+	
+	
+	\q						quit
+	\conninfo				info on connection
+	\password postgres
+	\?						list all \ commands
+	\h						list all SQL commands
+	\h [command]			help (man page style) on command
+	\l						list all databases
+	\l+						list databases and show additional info
+	\c [database]			connect to a new database
+	\dt						list tables in current database
+	\dt *					list tables in all schemas of current database
+	\d + [table]			list all columns and types in named db
+	\x						pretty print results
+	
+	// Create a new user
+	CREATE USER
+	
+	// Create a new database
+	CREATE DATABASE [name] {OWNER} ['role']
+
+	// List all databases
+	SELECT datname FROM pg_database WHERE datistemplate = false;
+	
+	// List all tables in current database
+	SELECT table_schema,table_name
+	FROM information_schema.tables
+	ORDER BY table_schema,table_name;
+	
+	// get current version
+	SELECT version();
+	
+	// get current data
+	SELECT current_Date;
+	
+	// create DB with columns
+	CREATE TABLE [name] (
+		[col_name]	[col_type],
+		[col_name]	[col_type],		--[comment]
+	);
+	
+	//drop table
+	DROP TABLE [tablename];
+	
+	//change column type
+	ALTER TABLE [name]
+	ALTER COLUMN [col_name] TYPE [new_data_type] {USING [expression]};
+	
+	// add primary key to a table that doesn't have one
+	ALTER TABLE [tbl_name] ADD PRIMARY KEY ([col_name])
+	
+	// add references constaint to existing table
+	ALTER TABLE [tbl_name]
+		ADD CONSTRAINT constraint_name
+		FOREIGN KEY (col_name)
+		REFERENCES other_tbl(other_tbl_col_name)
+	
+	// get columns and types
+	SELECT column_name, data_type
+	FROM information_schema.columnms
+	WHERE table_name = '[table_name]';
+	
+	// insert row
+	INSERT INTO [table] VALUES ([col1_data], [col2_data] ...);
+		-- anything other than simple numeric values must be escaped with single quotes
+	
+	INSERT INTO [table] ([col_x_name], [col_y_name], ...)
+	VALUES ([col_x_data], [col_y_data], ...);
+		-- columns can be in any order and some can be ommitted
+		-- better style
+	
+	// Load data from flat text-file
+	COPY [db_name] FROM '[file_path.txt]';
+	
+	// Queries:
+	SELECT * FROM [table]
+	
+	SELECT [col_x], [col_y], ([calculation]) AS [new_name], ... FROM [table];
+	
+	SELECT ... FROM ... WHERE [expression] ORDER BY [column] {ASC/DESC};
+	
+	SELECT DISTINCT ... FROM ... WHERE ...;
+	
+	// Joins:
+	SELECT ... FROM [tbl_x], [tbl_y] WHERE [expression]			// doesn't include non-matching rows
+	
+	SELECT ... FROM [tbl_x] INNER JOIN [tbl_y] ON [expression]	// equiv. to above
+	
+	SELECT ... FROM [tbl_x] LEFT OUTER JOIN [tbl_y] ON [expression];
+	
+	LEFT OUTER JOIN			// include all rows in table on left side, only matching entries in table on right
+	RIGHT OUTER JOIN		// include all rows in table on right side
+	FULL OUTER JOIN			// include all rows in both tables
+	
+	// Self join
+	SELECT W1.x, W1.y, W2.x, W2.y FROM [table_x] W1, [table_x] W2 WHERE [expression_involving_W1_and_W2]
+	
+	// Aggregate Functions
+	SELECT [avg/max/min/count/sum/...] FROM [table];
+	
+	SELECT [col_x] FROM [table] WHERE [col_y] = (SELECT max([col_y]) FROM [table]);
+	
+	SELECT [col_x], agg([col_y]) FROM [table] GROUP BY [col_x] HAVING [agg([col_y]) expression];
+	
+	// WHERE selects input rows before groups and aggregates are computed
+	// HAVING selects group rows after groups and aggregates are computes (only useful it it contains aggregates)
+	
+	
+	
+	// UPDATE
+	UPDATE [tbl]
+		SET [col_x] = [expression], [col_y] = [expression]
+		{WHERE [expression]};
+	
+	// ADD COLUMN
+	ALTER TABLE [tbl_name] ADD [new_col] [new_col_type];
+	
+	
+	// DELETE
+	DELETE FROM [table] WHERE [expression];
+	
+	
+	// VIEWS
+	CREATE VIEW [view_name] AS
+		SELECT ... FROM ...;
+	SELECT * FROM [view_name];
+	
+	
+	// CONSTRAINTS and KEYS
+	CREATE TABLE tbl_x (
+		col_x	type_x	PRIMARY KEY,
+		col_y	type_y
+	);
+	
+	CREATE TABLE tbl_y (
+		col_z	type_z	REFERENCES tbl_x(col_x),
+		...
+	);
+	
+	
+	// TRANSACTIONS
+	BEGIN;
+		UPDATE ...;
+		...;
+		{SAVEPOINT save_name}	-- commit all changes up to this point
+		...;
+		
+		{ROLLBACK TO save_name} -- undo everything that happened after save_name
+	COMMIT;
+	
+	
+	// WINDOW FUNCTIONS
+	SELECT col_x, col_y, min/max/avg/...(col_z) OVER (PARTITION BY col_x {ORDER BY ...}) 
+	FROM ...;
+	-- The OVER clause must directly follow the window function's name/argument
+	
+	// INHERITANCE
+	
+	CREATE TABLE parent (
+		col_1 ...,
+		col_2 ...,
+		...
+	);
+	
+	CREATE TABLE child (
+		col_x ...,
+		col_z ...,
+		...
+	) INHERITS (parent) -- child table gains all columns of parent
+	
+	
+	
+	
+		
+		
+
+
+
+
+CONFIG:
+	1. Installed postgresql, postgresql-contrib
+	2. Changed postgres user password (within postgres)
+	3. Created admin role and gave it superuser
+	4. Created a db called admin
+	
+	
+	
+DB Names:
+	start with letter, limited to 63 bytes
+	
+Data Types:
+	int, smallint
+	real
+	double precision
+	char(N), varchar(N)
+	date, time, timestamp, interval
