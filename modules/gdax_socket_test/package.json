@@ -1,0 +1,23 @@
+{
+  "name": "gdax_socket_test",
+  "version": "1.0.0",
+  "description": "Test bed for getting market data from the GDAX exchange using a web socket",
+  "main": "app.js",
+  "dependencies": {
+    "websocket": "^1.0.25"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BrianHVB/EchoTrader.git"
+  },
+  "author": "Brian Houle",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BrianHVB/EchoTrader/issues"
+  },
+  "homepage": "https://github.com/BrianHVB/EchoTrader#readme"
+}
