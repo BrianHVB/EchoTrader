@@ -44,11 +44,12 @@ Views are a key component of good SQL design. Views can be used any place a real
 	\d + [table]			list all columns and types in named db
 	\x						pretty print results
 	
-	// Create a new user
-	CREATE USER
 	
 	// Create a new database
 	CREATE DATABASE [name] {OWNER} ['role']
+	
+	// Copy a database
+	CREATE DATABASE new_db WITH TEMPLATE source_db;
 
 	// List all databases
 	SELECT datname FROM pg_database WHERE datistemplate = false;
@@ -64,7 +65,7 @@ Views are a key component of good SQL design. Views can be used any place a real
 	// get current data
 	SELECT current_Date;
 	
-	// create DB with columns
+	// create TABLE with columns
 	CREATE TABLE [name] (
 		[col_name]	[col_type],
 		[col_name]	[col_type],		--[comment]
@@ -72,6 +73,9 @@ Views are a key component of good SQL design. Views can be used any place a real
 	
 	//drop table
 	DROP TABLE [tablename];
+	
+	// ADD COLUMN to existing table
+	ALTER TABLE [tbl_name] ADD [new_col] [new_col_type];
 	
 	//change column type
 	ALTER TABLE [name]
@@ -142,10 +146,6 @@ Views are a key component of good SQL design. Views can be used any place a real
 	UPDATE [tbl]
 		SET [col_x] = [expression], [col_y] = [expression]
 		{WHERE [expression]};
-	
-	// ADD COLUMN
-	ALTER TABLE [tbl_name] ADD [new_col] [new_col_type];
-	
 	
 	// DELETE
 	DELETE FROM [table] WHERE [expression];

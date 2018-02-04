@@ -1,0 +1,26 @@
+et_market_data
+	currencies
+		name					varchar(80)
+		symbol					varchar(3)				primary key
+	exchanges
+		name					varchar(80)
+		symbol					varhcar(4)				primary key
+	gdax_basic
+		id						bigserial				primary key
+		time					timestamp				
+		exchange				varhcar(4)				foriegn exchanges(symbol)
+		currency				varhchar(3)				foriegn Currencies(symbol)
+		base_currency			varhcar(3)				foriegn Currencies(symbol)
+		last_trade_time			timestamp
+		last_trade_price		numeric(28, 10)
+		last_trade_volume		numeric(28, 10)
+		minute_high				numeric(28, 10)
+		minute_low				numeric(28, 10)
+		minute_avg				numeric(28, 10)
+		minute_volumn			numeric(28, 10)
+		
+		
+et_market_data_test
+	same as above
+		
+		

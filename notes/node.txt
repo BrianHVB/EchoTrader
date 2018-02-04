@@ -1,0 +1,102 @@
+COMMANDS:
+
+// execute a script
+NODE script.js
+
+
+
+Node:
+
+--COMMAND ARGS--
+process.argv		// array with all command line args;
+process.argv[0]		// always 'node'
+process.argv[1]		// always path to script
+process.argv[2]		// user supplied arg 1
+
+--MODULES--
+const xxx = require('module');
+
+
+
+--FILE IO--
+// all blocking methods end in 'Sync'
+
+	const fs = require('filesystem');
+	fs.readFileSync('/path/to/file')		// returns Buffer
+	fs.readFileSyc('path', 'utf8')			// returns string
+	
+// async
+	const fs = require('filesystem');
+	const path = require('path');
+	
+	fs.readFile(path, {encoding}, callback(err, data))
+	fs.readdir(path, callback(err, list))
+	
+	path.win32.xxx
+	path.posix.xxx
+	
+	path.basename(path, [ext]);		// returns filename portion of path
+	path.dirname(path);
+	path.extname(path);
+	path.isAbsolute(path);
+	path.join([...paths])
+	path.parse(path)	// returns obj: obj.dir, obj.root, obj.base, obj.name, obj.ext
+	path.relative(from, to)
+	path.resolve()
+	
+	
+--HTTP--
+// get
+	var http = require('http')
+
+    http.get(process.argv[2], (response) => {
+      response.setEncoding('utf8')
+      response.on('data', console.log)
+      response.on('error', console.error)
+    }).on('error', console.error)
+	
+	
+
+--BUFFERS--
+// Buffer - represent arbitrary arrays of data
+	
+	const str = buf.toString();
+
+
+	
+--ARRAYS--
+	const arr = [];
+	arr.push(itm);
+	
+	aString = arr.join(seperator);
+	
+	arr.forEach(func);
+	newArr = arr.map(func);
+	newArr = arr.filter(predicateFunc);
+
+
+--PROMISES--
+// promisfy a method
+	const promisify = require('util').promisify;
+	const promisMethod = promisify(xxx.oldAsyncMethod);
+	
+	
+tricks:
+
+// coerce number
+prefix a string with a '+' to coerce it to a number in an expression
+	2 + 2;			// 4
+	'2' + 2;		// '22'
+	+'2' + 2;		// 4
+	
+	
+// unpack object
+	const statusCode = someObj.statusCode;
+	const message = someObj.message;
+	
+	const {statusCode, message} = someObj;
+	
+	
+	
+
+	

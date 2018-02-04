@@ -23,7 +23,9 @@ EchoTrader:
 	
 	
 	
-	
+EchoTrader.MarketData.DB
+	Using Postgres
+	For price and volume entires, I chose a precision of (28, 10). Which corresponds to a max value of 999,999,999,999,999,999.9999999999 (quadrillions). Some cryptocurrencies have a higher allowed precision. Ethereum for instance has 18 decimal places of precision, meaning that the smallest tradable unit is technically 0.000000000000000001 ether. Bitcoin by comoparsion has only 8 decimals. It seems that most exchanges use 8 or 10 as the limit.
 	
 User Stories - Drafts
 
