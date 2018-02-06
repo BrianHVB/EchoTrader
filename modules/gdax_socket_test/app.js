@@ -7,7 +7,7 @@ let WebSocket = require('websocket');
 
 let client = new WebSocketClient();
 
-/** @param {WebSocket.connection} webSocketConnection */
+
 client.on('connect', webSocketConnection => {
 	let wc = webSocketConnection;
 	print(`connected: \tserver: ${wc.remoteAddress}\tversion: ${wc.webSocketVersion}`);

@@ -1,3 +1,9 @@
+# Private config files
+*.prv
+*.bat
+*.prv*.*
+db-conn.*
+
 # Intellij
 .idea/
 
