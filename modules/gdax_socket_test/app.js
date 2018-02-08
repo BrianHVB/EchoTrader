@@ -1,12 +1,8 @@
 let print = function(msg) {console.log(msg);};
 let sprintf = require('sprintf-js').sprintf;
 let WebSocketClient = require('websocket').client;
-let WebSocketConnection = require('websocket').connection;
-let WebSocket = require('websocket');
-
 
 let client = new WebSocketClient();
-
 
 client.on('connect', webSocketConnection => {
 	let wc = webSocketConnection;
@@ -25,6 +21,7 @@ client.on('connect', webSocketConnection => {
 
 	});
 
+
 	print('sending subscribe message');
 	let subscribeMsg = {
 		"type": "subscribe",
@@ -35,8 +32,8 @@ client.on('connect', webSocketConnection => {
 
 	setTimeout(closeConnection, 6000000, wc);
 
-
 });
+
 
 let closeConnection = function(webSocketConnection) {
 	print("closing connection");

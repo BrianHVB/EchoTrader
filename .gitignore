@@ -7,6 +7,12 @@ db-conn.*
 # Intellij
 .idea/
 
+# Temp
+tmp
+
+# Presentations
+presentations/
+
 
 # Logs
 logs
