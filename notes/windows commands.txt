@@ -1,0 +1,5 @@
+// set a Windows env. variable for the user. Must restart shell for it to take affect
+setx [NEW_VAR]  [value]
+
+// set a Windows env variable for the system. Requires admin
+setx [NEW_VAR]  [value] /M

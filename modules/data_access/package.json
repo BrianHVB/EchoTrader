@@ -5,15 +5,25 @@
   "main": "app.js",
   "directories": {
     "lib": "lib",
-    "test": "tests"
+    "test": "test",
+    "config": "config"
   },
   "scripts": {
-    "test": "mocha"
+    "start": "node .\\app.js",
+    "test": "mocha",
+    "coverage": "nyc --reporter=text mocha",
+    "abc": "mocha"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/BrianHVB/EchoTrader/tree/master/modules/data_access"
   },
   "author": "Brian Houle",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "chai": "^4.1.2"
+  },
+  "devDependencies": {
+    "decache": "^4.4.0"
+  }
 }

@@ -2,7 +2,7 @@
 
 let config = {};
 
-config.envrionment = 'development';
+config.env = 'development';
 config.hostname = 'unknown';
 
 module.exports = config;
