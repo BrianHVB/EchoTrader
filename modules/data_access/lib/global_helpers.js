@@ -1,0 +1,2 @@
+print = console.log;
+

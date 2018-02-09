@@ -1,0 +1,19 @@
+{
+  "name": "data_access",
+  "version": "1.0.0",
+  "description": "The data access layer for EchoTrader. Connects exchanges with databases.",
+  "main": "app.js",
+  "directories": {
+    "lib": "lib",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BrianHVB/EchoTrader/tree/master/modules/data_access"
+  },
+  "author": "Brian Houle",
+  "license": "ISC"
+}
