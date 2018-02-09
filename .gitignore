@@ -1,7 +1,7 @@
 # Private config files
 *.prv
 *.bat
-*.prv*.*
+*private*
 db-conn.*
 
 # Intellij
