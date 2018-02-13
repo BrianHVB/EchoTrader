@@ -66,12 +66,12 @@ describe('DataInterface', function() {
 			).should.eventually.be.within(0, 1000);
 		});
 
-		it ('buildInsertTemplate() should return an object with twice as many values as the test record', function() {
+		it ('buildInsertTemplate() should return an object with as many values as the test record', function() {
 			let result = DataInterface.buildInsertTemplate(testRecord);
 
 			let entriesInTestRecord = Object.entries(testRecord).length;
 
-			result.values.length.should.equal(entriesInTestRecord * 2);
+			result.values.length.should.equal(entriesInTestRecord);
 
 		});
 
