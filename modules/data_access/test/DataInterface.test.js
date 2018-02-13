@@ -36,7 +36,6 @@ before(function() {
 });
 
 after(function() {
-	console.log('AFTER');
 	dataInt.close();
 });
 

@@ -39,6 +39,54 @@ class DataInterface {
 
 	}
 
+	async checkValidInsertion(tableName, record) {
+		let map = await this.getInsertionObj(tableName);
+
+		if (Object.entries(map).length === 0) {
+			throw `Insert Error: Table ${tableName} doesn't exist`;
+		}
+
+		Object.entries(record).forEach(([key]) => {
+			if (map[key] === undefined) {
+				throw `Insert Error: Object property ['${key}'] does not correspond to a column in table '${tableName}'`;
+			}
+		});
+
+
+	}
+
+	async buildInsertQuery(tableName, record) {
+		await this.checkValidInsertion(tableName, record);
+
+		let template = DataInterface.buildInsertTemplate(record);
+		let primaryKey = await this.getPrimaryKeyColumnName(tableName);
+		let query = `INSERT INTO ${tableName} (${template.columnString})
+						VALUES (${template.valueString})
+						RETURNING ${primaryKey};`;
+
+		return {query: query, values: template.values};
+	}
+
+	async getInsertionObj(tableName) {
+		let query = `SELECT a.column_name, b.constraint_name
+						FROM information_schema.columns AS a
+                  FULL OUTER JOIN information_schema.key_column_usage b
+                  ON a.column_name = b.column_name
+                  WHERE a.table_name = $1
+                  AND (b.constraint_name IS NULL OR b.constraint_name NOT LIKE '%pkey%')
+						ORDER BY column_name ASC;`;
+		let values = [tableName];
+
+		let result = await this.query(query, values);
+
+		let map = {};
+		result.forEach(itm => {
+			map[itm.column_name] = null;
+		});
+
+		return map;
+	}
+
 	static buildInsertTemplate(record) {
 		let result = {};
 		result.columnString = '';
@@ -65,11 +113,6 @@ class DataInterface {
 		return result;
 	}
 
-	async getDatabaseTime() {
-		const result = await this.query('SELECT now()');
-		return result[0].now;
-	}
-
 	async getPrimaryKeyColumnName(tableName) {
 		let query = `SELECT column_name, constraint_name
 						FROM information_schema.key_column_usage
@@ -82,57 +125,10 @@ class DataInterface {
 		return result[0].column_name;
 	}
 
-	async getInsertionObj(tableName) {
-		let query = `SELECT a.column_name, b.constraint_name
-						FROM information_schema.columns AS a
-                  FULL OUTER JOIN information_schema.key_column_usage b
-                  ON a.column_name = b.column_name
-                  WHERE a.table_name = $1
-                  AND (b.constraint_name IS NULL OR b.constraint_name NOT LIKE '%pkey%')
-						ORDER BY column_name ASC;`;
-		let values = [tableName];
-
-		let result = await this.query(query, values);
-
-		let map = {};
-		result.forEach(itm => {
-			map[itm.column_name] = null;
-		});
-
-		return map;
+	async getDatabaseTime() {
+		const result = await this.query('SELECT now()');
+		return result[0].now;
 	}
-
-
-	async buildInsertQuery(tableName, record) {
-		await this.checkValidInsertion(tableName, record);
-
-		let template = DataInterface.buildInsertTemplate(record);
-		let primaryKey = await this.getPrimaryKeyColumnName(tableName);
-		let query = `INSERT INTO ${tableName} (${template.columnString})
-						VALUES (${template.valueString})
-						RETURNING ${primaryKey};`;
-
-		return {query: query, values: template.values};
-	}
-
-
-	async checkValidInsertion(tableName, record) {
-		let map = await this.getInsertionObj(tableName);
-
-		if (Object.entries(map).length === 0) {
-			throw `Insert Error: Table ${tableName} doesn't exist`;
-		}
-
-		Object.entries(record).forEach(([key]) => {
-			if (map[key] === undefined) {
-				throw `Insert Error: Object property ['${key}'] does not correspond to a column in table '${tableName}'`;
-			}
-		});
-
-
-	}
-	
-
 
 }
 
