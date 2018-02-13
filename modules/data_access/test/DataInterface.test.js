@@ -36,6 +36,7 @@ before(function() {
 });
 
 after(function() {
+	console.log('AFTER');
 	dataInt.close();
 });
 
@@ -75,6 +76,8 @@ describe('DataInterface', function() {
 
 		});
 
+
+
 	});
 
 	describe('gdax schema', function() {
@@ -96,7 +99,52 @@ describe('DataInterface', function() {
 	});
 
 	describe('gdax insert', function() {
-		it('should insert the test record and return a numeric id', function() {
+
+		it(`buildInsertQuery() should throw an error when the provided table doesn't exist`, function() {
+			let invalidTable = 'foobar';
+
+			let result = dataInt.buildInsertQuery(invalidTable, testRecord);
+
+			result.should.eventually.be.rejectedWith(`Insert Error: Table ${invalidTable} doesn't exist`);
+		});
+
+		it(`buildInsertQuery() should throw an error when a record key doesn't match any columns in the table`, function() {
+			let tableName = 'gdax_basic';
+			let invalidColumn = 'foobar';
+
+			let testRecord2 = Object.assign({}, testRecord);
+			testRecord2[invalidColumn] = 'test data';
+
+
+			let result = dataInt.buildInsertQuery('gdax_basic', testRecord2);
+
+			testRecord2.should.include({[invalidColumn]: 'test data'});
+
+			return result.should.be.rejectedWith(
+				`Insert Error: Object property ['${invalidColumn}'] does not correspond to a column in table '${tableName}'`);
+		});
+
+		it('buildInsertQuery() should return a values object that has the same number of entries as columns in the query', function() {
+
+			let numberOfKeys = Object.entries(testRecord).length;
+
+			let result = dataInt.buildInsertQuery('gdax_basic', testRecord);
+
+			return result.then(data => {
+				let {query, values} = data;
+				let wordsFollowedByAComma = /[a-zA-Z]\w*[,)]/g;
+				let matchingWordList = query.match(wordsFollowedByAComma);
+
+				return matchingWordList ? (matchingWordList.length) : 0;
+
+			}).should.eventually.equal(numberOfKeys);
+
+
+
+		});
+
+
+		it('insert() should insert the test record and return a numeric id', function() {
 
 			let result = dataInt.insert('gdax_basic', testRecord);
 

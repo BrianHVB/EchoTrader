@@ -32,21 +32,10 @@ class DataInterface {
 	}
 
 	async insert(tableName, record) {
-		let template = DataInterface.buildInsertTemplate(record);
+		let {query, values} = await this.buildInsertQuery(tableName, record);
 
-		let lastIndex = template.values.length;
-
-		let query = `INSERT INTO ${tableName} (${template.columnString})
-						VALUES (${template.valueString})
-						RETURNING ${await this.getPrimaryKeyColumnName(tableName)};`;
-
-		//return template;
-		let result = await this.query(query, template.values);
+		let result = await this.query(query, values);
 		return result[0].id;
-
-
-
-
 
 	}
 
@@ -71,7 +60,7 @@ class DataInterface {
 
 			result.values[count - 1] = val;
 			count++;
-		}, this);
+		});
 
 		return result;
 	}
@@ -113,6 +102,35 @@ class DataInterface {
 		return map;
 	}
 
+
+	async buildInsertQuery(tableName, record) {
+		await this.checkValidInsertion(tableName, record);
+
+		let template = DataInterface.buildInsertTemplate(record);
+		let primaryKey = await this.getPrimaryKeyColumnName(tableName);
+		let query = `INSERT INTO ${tableName} (${template.columnString})
+						VALUES (${template.valueString})
+						RETURNING ${primaryKey};`;
+
+		return {query: query, values: template.values};
+	}
+
+
+	async checkValidInsertion(tableName, record) {
+		let map = await this.getInsertionObj(tableName);
+
+		if (Object.entries(map).length === 0) {
+			throw `Insert Error: Table ${tableName} doesn't exist`;
+		}
+
+		Object.entries(record).forEach(([key]) => {
+			if (map[key] === undefined) {
+				throw `Insert Error: Object property ['${key}'] does not correspond to a column in table '${tableName}'`;
+			}
+		});
+
+
+	}
 	
 
 
