@@ -162,7 +162,7 @@ class DataInterface {
 	async throwErrorIfInvalidTable(tableName) {
 		let valid = await this.isTable(tableName);
 		if (!valid) {
-			throw `Query Error: [${table}] is not a valid table`;
+			throw `Query Error: [${tableName}] is not a valid table`;
 		}
 	}
 
@@ -171,11 +171,22 @@ class DataInterface {
 
 		let text = `SELECT *
 						FROM ${table}
-						WHERE time BETWEEN $1 AND $2;`
+						WHERE time BETWEEN $1 AND $2;`;
 		let values = [start, end];
 
 		return this.query(text, values);
 
+	}
+
+	async getRecordsSinceTradeTime(table, start) {
+		await this.throwErrorIfInvalidTable(table);
+
+		let text = `SELECT *
+						FROM ${table}
+						WHERE last_trade_time >= $1`;
+		let values = [start];
+
+		return this.query(text, values);
 	}
 
 }

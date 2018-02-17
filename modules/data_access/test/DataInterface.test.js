@@ -75,8 +75,6 @@ describe('DataInterface', function() {
 
 		});
 
-
-
 	});
 
 	describe('gdax schema', function() {
@@ -152,7 +150,6 @@ describe('DataInterface', function() {
 
 				let result = dataInt.insert('gdax_basic', testRecord);
 
-				//return result.then(data => console.log(data));
 				return result.then(data => Number(data)).should.eventually.be.a('number');
 			})
 		});
@@ -194,9 +191,8 @@ describe('DataInterface', function() {
 
 		describe('#getRecordsBetweenTime()', function() {
 			it('should mark time, create three records, end time, then return the three', function() {
-
 				const tableName = 'gdax_basic';
-				const milisecondDelay = 500;
+				const milisecondDelay = 200;
 				let start = new Date(Date.now()).toISOString();
 				let insertions = [];
 
@@ -209,7 +205,6 @@ describe('DataInterface', function() {
 						testRecord2.time = new Date(Date.now()).toISOString();
 						setTimeout(() => resolve(dataInt.insert(tableName, testRecord2)), milisecondDelay * i)
 					}))
-
 				}
 
 				async function getNumRecordsReturned(){
@@ -222,7 +217,26 @@ describe('DataInterface', function() {
 
 				return getNumRecordsReturned().should.eventually.equal(3);
 
+			})
+		});
 
+		describe('#getRecordsSinceTradeTime()', function() {
+			it('should create 3 records with an artifical last_trade_time, then return two of those records', function () {
+				const tableName = 'gdax_basic';
+
+				let mark = Date.now();
+				let insertions = [];
+
+				for (let i = 1; i <= 3; i++) {
+					let testCopy = Object.assign({}, testRecord);
+					testCopy.last_trade_time = new Date(mark + i * 1000).toISOString();
+					insertions.push(dataInt.insert(tableName, testCopy))
+				}
+
+				return Promise.all(insertions)
+					.then(() => dataInt.getRecordsSinceTradeTime(tableName, new Date(mark + 1001).toISOString()))
+					.then(rows => rows.length)
+					.should.eventually.equal(2);
 			})
 		})
 	})
