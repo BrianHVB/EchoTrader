@@ -80,76 +80,82 @@ describe('DataInterface', function() {
 	});
 
 	describe('gdax schema', function() {
-		it ('should identify the primary key field in the gdax_basic table', function() {
-			let queryResult = dataInt.getPrimaryKeyColumnName('gdax_basic');
+		describe("#getPrimaryKeyColumnName()", function() {
+			it ('should identify the primary key field in the gdax_basic table', function() {
+				let queryResult = dataInt.getPrimaryKeyColumnName('gdax_basic');
 
-			return queryResult.should.eventually.equal('id');
+				return queryResult.should.eventually.equal('id');
 
+			});
 		});
 
-		it ('should identify all of the fields in the gdax table that accept values on insertion', function() {
-			let fields = dataInt.getInsertionObj('gdax_basic');
+		describe('#getInsertionObj()', function() {
+			it ('should identify all of the fields in the gdax table that accept values on insertion', function() {
+				let fields = dataInt.getInsertionObj('gdax_basic');
 
-			return fields.should.eventually.include.all.keys(
-				'average', 'average_volume', 'base_currency', 'currency', 'exchange', 'high',
-				'last_trade_id', 'last_trade_price', 'last_trade_side', 'last_trade_time', 'last_trade_volume',
-				'low', 'time', 'total_volume');
-		})
+				return fields.should.eventually.include.all.keys(
+					'average', 'average_volume', 'base_currency', 'currency', 'exchange', 'high',
+					'last_trade_id', 'last_trade_price', 'last_trade_side', 'last_trade_time', 'last_trade_volume',
+					'low', 'time', 'total_volume');
+			})
+		});
+
 	});
 
 	describe('gdax insert', function() {
+		describe('#buildInsertQuery()', function() {
+			it(`should throw an error when the provided table doesn't exist`, function() {
+				let invalidTable = 'foobar';
 
-		it(`buildInsertQuery() should throw an error when the provided table doesn't exist`, function() {
-			let invalidTable = 'foobar';
+				let result = dataInt.buildInsertQuery(invalidTable, testRecord);
 
-			let result = dataInt.buildInsertQuery(invalidTable, testRecord);
+				result.should.eventually.be.rejectedWith(`Insert Error: Table ${invalidTable} doesn't exist`);
+			});
 
-			result.should.eventually.be.rejectedWith(`Insert Error: Table ${invalidTable} doesn't exist`);
+			it(`should throw an error when a record key doesn't match any columns in the table`, function() {
+				let tableName = 'gdax_basic';
+				let invalidColumn = 'foobar';
+
+				let testRecord2 = Object.assign({}, testRecord);
+				testRecord2[invalidColumn] = 'test data';
+
+
+				let result = dataInt.buildInsertQuery('gdax_basic', testRecord2);
+
+				testRecord2.should.include({[invalidColumn]: 'test data'});
+
+				return result.should.be.rejectedWith(
+					`Insert Error: Object property ['${invalidColumn}'] does not correspond to a column in table '${tableName}'`);
+			});
+
+			it('should return a values object that has the same number of entries as columns in the query', function() {
+
+				let numberOfKeys = Object.entries(testRecord).length;
+
+				let result = dataInt.buildInsertQuery('gdax_basic', testRecord);
+
+				return result.then(data => {
+					let {query, values} = data;
+					let wordsFollowedByAComma = /[a-zA-Z]\w*[,)]/g;
+					let matchingWordList = query.match(wordsFollowedByAComma);
+
+					return matchingWordList ? (matchingWordList.length) : 0;
+
+				}).should.eventually.equal(numberOfKeys);
+			});
+
+
 		});
 
-		it(`buildInsertQuery() should throw an error when a record key doesn't match any columns in the table`, function() {
-			let tableName = 'gdax_basic';
-			let invalidColumn = 'foobar';
+		describe('#insert()', function() {
+			it('insert() should insert the test record and return a numeric id', function() {
 
-			let testRecord2 = Object.assign({}, testRecord);
-			testRecord2[invalidColumn] = 'test data';
+				let result = dataInt.insert('gdax_basic', testRecord);
 
-
-			let result = dataInt.buildInsertQuery('gdax_basic', testRecord2);
-
-			testRecord2.should.include({[invalidColumn]: 'test data'});
-
-			return result.should.be.rejectedWith(
-				`Insert Error: Object property ['${invalidColumn}'] does not correspond to a column in table '${tableName}'`);
+				//return result.then(data => console.log(data));
+				return result.then(data => Number(data)).should.eventually.be.a('number');
+			})
 		});
-
-		it('buildInsertQuery() should return a values object that has the same number of entries as columns in the query', function() {
-
-			let numberOfKeys = Object.entries(testRecord).length;
-
-			let result = dataInt.buildInsertQuery('gdax_basic', testRecord);
-
-			return result.then(data => {
-				let {query, values} = data;
-				let wordsFollowedByAComma = /[a-zA-Z]\w*[,)]/g;
-				let matchingWordList = query.match(wordsFollowedByAComma);
-
-				return matchingWordList ? (matchingWordList.length) : 0;
-
-			}).should.eventually.equal(numberOfKeys);
-
-
-
-		});
-
-
-		it('insert() should insert the test record and return a numeric id', function() {
-
-			let result = dataInt.insert('gdax_basic', testRecord);
-
-			//return result.then(data => console.log(data));
-			return result.then(data => Number(data)).should.eventually.be.a('number');
-		})
 	})
 
 
