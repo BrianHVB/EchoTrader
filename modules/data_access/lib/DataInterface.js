@@ -55,6 +55,22 @@ class DataInterface {
 
 	}
 
+	async isTable(tableName) {
+		let text = `SELECT table_name, table_schema
+						FROM information_schema.tables
+						WHERE table_schema = 'public';`;
+
+		let result = await this.query(text, null);
+
+		for (let row of result) {
+			if (row.table_name === tableName) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	async buildInsertQuery(tableName, record) {
 		await this.checkValidInsertion(tableName, record);
 
@@ -128,6 +144,38 @@ class DataInterface {
 	async getDatabaseTime() {
 		const result = await this.query('SELECT now()');
 		return result[0].now;
+	}
+
+	async getRecordById(table, id) {
+		let valid = await this.isTable(table);
+		if (!valid) {
+			throw `Query Error: [${table}] is not a valid table`;
+		}
+
+		let query = `SELECT * FROM ${table} WHERE id = $1`;
+		let values = [id];
+
+		let result = await this.query(query, values);
+		return result[0];
+	}
+
+	async throwErrorIfInvalidTable(tableName) {
+		let valid = await this.isTable(tableName);
+		if (!valid) {
+			throw `Query Error: [${table}] is not a valid table`;
+		}
+	}
+
+	async getRecordsBetweenTime(table, start, end) {
+		await this.throwErrorIfInvalidTable(table);
+
+		let text = `SELECT *
+						FROM ${table}
+						WHERE time BETWEEN $1 AND $2;`
+		let values = [start, end];
+
+		return this.query(text, values);
+
 	}
 
 }

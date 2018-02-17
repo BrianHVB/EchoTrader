@@ -21,9 +21,9 @@ before(function() {
 		'exchange': 'TEST',
 		'currency': 'BTC',
 		'base_currency': 'USD',
-		'time': new Date(Date.now()),
+		'time': new Date(Date.now()).toISOString(),
 		'last_trade_id': 0,
-		'last_trade_time': new Date(Date.now() - 50000),
+		'last_trade_time': new Date(Date.now() - 50000).toISOString(),
 		'last_trade_side': 'buy',
 		'last_trade_price': 32.34,
 		'last_trade_volume': 0.002,
@@ -156,6 +156,75 @@ describe('DataInterface', function() {
 				return result.then(data => Number(data)).should.eventually.be.a('number');
 			})
 		});
+	});
+
+	describe("read from database", function() {
+
+		describe('#isTable()', function() {
+			it('should return false when the table does not exist', function() {
+				let fakeTable = 'foo';
+				return dataInt.isTable(fakeTable).should.eventually.be.false;
+			});
+
+			it('should return true when the table does not exist', function() {
+				let realTable = 'gdax_basic';
+				return dataInt.isTable(realTable).should.eventually.be.true;
+			})
+		});
+
+		describe('#getRecordById()', function() {
+			it('should create a test record, then get the same record using the id', function() {
+				let rtnRecordId = 0;
+				return dataInt.insert('gdax_basic', testRecord)
+					.then(recordId => {
+						rtnRecordId = recordId;
+						return dataInt.getRecordById('gdax_basic', recordId);
+					})
+					.then(record => {
+						return record.id.should.equal(rtnRecordId);
+					})
+
+			});
+
+			it('should throw an error when an invalid table is provided', function() {
+				let invalidName = 'foo';
+				return dataInt.getRecordById(invalidName, 0).should.be.rejected;
+			})
+		});
+
+		describe('#getRecordsBetweenTime()', function() {
+			it('should mark time, create three records, end time, then return the three', function() {
+
+				const tableName = 'gdax_basic';
+				const milisecondDelay = 500;
+				let start = new Date(Date.now()).toISOString();
+				let insertions = [];
+
+				// Immediately creates three promises and inserts them into list
+				// Each promise contains a nested promise that will be the eventual result of the record insertion.
+				// These sub-promises are created using a timer
+				for (let i = 1; i <= 3; i++) {
+					insertions.push(new Promise((resolve) => {
+						let testRecord2 = Object.assign({}, testRecord);
+						testRecord2.time = new Date(Date.now()).toISOString();
+						setTimeout(() => resolve(dataInt.insert(tableName, testRecord2)), milisecondDelay * i)
+					}))
+
+				}
+
+				async function getNumRecordsReturned(){
+					await Promise.all(insertions);
+					let end = new Date(Date.now()).toISOString();
+
+					let rows = await dataInt.getRecordsBetweenTime(tableName, start, end);
+					return rows.length;
+				}
+
+				return getNumRecordsReturned().should.eventually.equal(3);
+
+
+			})
+		})
 	})
 
 
