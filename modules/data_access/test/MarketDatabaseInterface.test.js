@@ -8,7 +8,7 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 
 // app and lib imports
-const DataInterface = require('../lib/DataInterface');
+const DataInterface = require('../lib/MarketDatabaseInterface');
 
 // setup
 let dataInt;
