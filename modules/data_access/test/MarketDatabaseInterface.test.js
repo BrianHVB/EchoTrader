@@ -71,7 +71,7 @@ describe('DataInterface', function() {
 
 			expect(badConstructorCall).to.throw("Construction Error");
 		});
-		
+
 	});
 
 	describe('Utility', function() {
