@@ -7,12 +7,26 @@ const _config = Symbol('_config');
 const _query = Symbol('_query');
 const _pool = Symbol('_pool');
 
+let dataConnection = {
+	config: require('../config'),
+	pool: null,
+
+	initialize: function() {
+		this.pool = new Pool(this.config.postgres.connection);
+	}
+};
+
+
 class DataInterface {
 	constructor(name = '') {
 		this.name = name;
 		this[_config] = require('../config');
 
-		this[_pool] = new Pool(this[_config].postgres.connection);
+		if (!dataConnection.pool) {
+			dataConnection.initialize();
+		}
+
+		this[_pool] = dataConnection.pool;
 	}
 
 	async close() {
