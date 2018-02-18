@@ -16,9 +16,27 @@ let dataConnection = {
 	}
 };
 
+let configurations = {
+	gdax_btc_usd: {
+		exchange: 'GDAX',
+		currency: 'BTC',
+		baseCurrency: 'USD'
+	},
+	gdax_eth_usd: {
+		exchange: 'GDAX',
+		currency: 'ETH',
+		baseCurrency: 'USD'
+	}
+};
+
+let tableMap = new Map([
+	[JSON.stringify(configurations.gdax_btc_usd), 'gdax_basic'],
+	[JSON.stringify(configurations.gdax_eth_usd), 'gdax_basic']
+]);
+
 
 class DataInterface {
-	constructor(name = '') {
+	constructor(name = '', marketType = null) {
 		this.name = name;
 		this[_config] = require('../config');
 
@@ -27,6 +45,23 @@ class DataInterface {
 		}
 
 		this[_pool] = dataConnection.pool;
+
+		if (marketType) {
+			this.table = DataInterface.setDefaultTable(marketType);
+		}
+		else {
+			this.table = ''
+		}
+
+	}
+
+	static setDefaultTable(marketType) {
+		let key = JSON.stringify(marketType);
+		if (tableMap.has(key)) {
+			return tableMap.get(key);
+		}
+
+		throw `Construction Error: There is no table associated with ${marketType}`;
 	}
 
 	async close() {
@@ -45,15 +80,15 @@ class DataInterface {
 		return result.rows;
 	}
 
-	async insert(tableName, record) {
-		let {query, values} = await this.buildInsertQuery(tableName, record);
+	async insert(record, tableName = this.table) {
+		let {query, values} = await this.buildInsertQuery(record, tableName);
 
 		let result = await this.query(query, values);
 		return result[0].id;
 
 	}
 
-	async checkValidInsertion(tableName, record) {
+	async checkValidInsertion(record, tableName) {
 		let map = await this.getInsertionObj(tableName);
 
 		if (Object.entries(map).length === 0) {
@@ -85,8 +120,8 @@ class DataInterface {
 		return false;
 	}
 
-	async buildInsertQuery(tableName, record) {
-		await this.checkValidInsertion(tableName, record);
+	async buildInsertQuery(record, tableName) {
+		await this.checkValidInsertion(record, tableName);
 
 		let template = DataInterface.buildInsertTemplate(record);
 		let primaryKey = await this.getPrimaryKeyColumnName(tableName);
@@ -160,13 +195,10 @@ class DataInterface {
 		return result[0].now;
 	}
 
-	async getRecordById(table, id) {
-		let valid = await this.isTable(table);
-		if (!valid) {
-			throw `Query Error: [${table}] is not a valid table`;
-		}
+	async getRecordById(id, tableName = this.table) {
+		await this.throwErrorIfInvalidTable(tableName);
 
-		let query = `SELECT * FROM ${table} WHERE id = $1`;
+		let query = `SELECT * FROM ${tableName} WHERE id = $1`;
 		let values = [id];
 
 		let result = await this.query(query, values);
@@ -180,11 +212,11 @@ class DataInterface {
 		}
 	}
 
-	async getRecordsBetweenTime(table, start, end) {
-		await this.throwErrorIfInvalidTable(table);
+	async getRecordsBetweenTime(start, end, tableName = this.table) {
+		await this.throwErrorIfInvalidTable(tableName);
 
 		let text = `SELECT *
-						FROM ${table}
+						FROM ${tableName}
 						WHERE time BETWEEN $1 AND $2;`;
 		let values = [start, end];
 
@@ -192,22 +224,22 @@ class DataInterface {
 
 	}
 
-	async getRecordsSinceTradeTime(table, start) {
-		await this.throwErrorIfInvalidTable(table);
+	async getRecordsSinceTradeTime(start, tableName = this.table) {
+		await this.throwErrorIfInvalidTable(tableName);
 
 		let text = `SELECT *
-						FROM ${table}
+						FROM ${tableName}
 						WHERE last_trade_time >= $1`;
 		let values = [start];
 
 		return this.query(text, values);
 	}
 
-	async getRecordsSinceId(table, id) {
-		await this.throwErrorIfInvalidTable(table);
+	async getRecordsSinceId(id, tableName = this.table) {
+		await this.throwErrorIfInvalidTable(tableName);
 
 		let text = `SELECT *
-						FROM ${table}
+						FROM ${tableName}
 						WHERE id >= $1`;
 		let values = [id];
 

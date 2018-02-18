@@ -15,7 +15,14 @@ let dataInt;
 let testRecord;
 
 before(function() {
-	dataInt = new DataInterface('GDAX');
+
+	let marketConfig = {
+		exchange: 'GDAX',
+		currency: 'BTC',
+		baseCurrency: 'USD'
+	};
+
+	dataInt = new DataInterface('GDAX', marketConfig);
 
 	testRecord = {
 		'exchange': 'TEST',
@@ -105,7 +112,7 @@ describe('DataInterface', function() {
 			it(`should throw an error when the provided table doesn't exist`, function() {
 				let invalidTable = 'foobar';
 
-				let result = dataInt.buildInsertQuery(invalidTable, testRecord);
+				let result = dataInt.buildInsertQuery(testRecord, invalidTable);
 
 				result.should.eventually.be.rejectedWith(`Insert Error: Table ${invalidTable} doesn't exist`);
 			});
@@ -118,7 +125,7 @@ describe('DataInterface', function() {
 				testRecord2[invalidColumn] = 'test data';
 
 
-				let result = dataInt.buildInsertQuery('gdax_basic', testRecord2);
+				let result = dataInt.buildInsertQuery(testRecord2, 'gdax_basic');
 
 				testRecord2.should.include({[invalidColumn]: 'test data'});
 
@@ -130,7 +137,7 @@ describe('DataInterface', function() {
 
 				let numberOfKeys = Object.entries(testRecord).length;
 
-				let result = dataInt.buildInsertQuery('gdax_basic', testRecord);
+				let result = dataInt.buildInsertQuery(testRecord, 'gdax_basic');
 
 				return result.then(data => {
 					let {query, values} = data;
@@ -148,7 +155,7 @@ describe('DataInterface', function() {
 		describe('#insert()', function() {
 			it('insert() should insert the test record and return a numeric id', function() {
 
-				let result = dataInt.insert('gdax_basic', testRecord);
+				let result = dataInt.insert(testRecord);
 
 				return result.then(data => Number(data)).should.eventually.be.a('number');
 			})
@@ -172,10 +179,10 @@ describe('DataInterface', function() {
 		describe('#getRecordById()', function() {
 			it('should create a test record, then get the same record using the id', function() {
 				let rtnRecordId = 0;
-				return dataInt.insert('gdax_basic', testRecord)
+				return dataInt.insert(testRecord)
 					.then(recordId => {
 						rtnRecordId = recordId;
-						return dataInt.getRecordById('gdax_basic', recordId);
+						return dataInt.getRecordById(recordId);
 					})
 					.then(record => {
 						return record.id.should.equal(rtnRecordId);
@@ -185,7 +192,7 @@ describe('DataInterface', function() {
 
 			it('should throw an error when an invalid table is provided', function() {
 				let invalidName = 'foo';
-				return dataInt.getRecordById(invalidName, 0).should.be.rejected;
+				return dataInt.getRecordById(0, invalidName).should.be.rejected;
 			})
 		});
 
@@ -203,7 +210,7 @@ describe('DataInterface', function() {
 					insertions.push(new Promise((resolve) => {
 						let testRecord2 = Object.assign({}, testRecord);
 						testRecord2.time = new Date(Date.now()).toISOString();
-						setTimeout(() => resolve(dataInt.insert(tableName, testRecord2)), milisecondDelay * i)
+						setTimeout(() => resolve(dataInt.insert(testRecord2)), milisecondDelay * i)
 					}))
 				}
 
@@ -211,7 +218,7 @@ describe('DataInterface', function() {
 					await Promise.all(insertions);
 					let end = new Date(Date.now()).toISOString();
 
-					let rows = await dataInt.getRecordsBetweenTime(tableName, start, end);
+					let rows = await dataInt.getRecordsBetweenTime(start, end);
 					return rows.length;
 				}
 
@@ -230,11 +237,11 @@ describe('DataInterface', function() {
 				for (let i = 1; i <= 3; i++) {
 					let testCopy = Object.assign({}, testRecord);
 					testCopy.last_trade_time = new Date(mark + i * 1000).toISOString();
-					insertions.push(dataInt.insert(tableName, testCopy))
+					insertions.push(dataInt.insert(testCopy))
 				}
 
 				return Promise.all(insertions)
-					.then(() => dataInt.getRecordsSinceTradeTime(tableName, new Date(mark + 1001).toISOString()))
+					.then(() => dataInt.getRecordsSinceTradeTime(new Date(mark + 1001).toISOString()))
 					.then(rows => rows.length)
 					.should.eventually.equal(2);
 			})
@@ -246,9 +253,9 @@ describe('DataInterface', function() {
 
 				let insertions = [];
 
-				insertions[0] = dataInt.insert(tableName, testRecord);
+				insertions[0] = dataInt.insert(testRecord);
 				for (let i = 1; i <= 3; i++) {
-					insertions[i] = dataInt.insert(tableName, testRecord);
+					insertions[i] = dataInt.insert(testRecord);
 				}
 
 
@@ -265,7 +272,7 @@ describe('DataInterface', function() {
 
 				let results = Promise.all(insertions)
 					.then(completed => Math.min(...completed))
-					.then(minId => dataInt.getRecordsSinceId(tableName, minId))
+					.then(minId => dataInt.getRecordsSinceId(minId))
 					.then(rows => rows.length);
 
 				return results.should.eventually.equal(4);
