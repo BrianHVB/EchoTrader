@@ -55,10 +55,23 @@ describe('DataInterface', function() {
 			let myDataInt = new DataInterface('GDAX');
 			myDataInt.name.should.equal('GDAX');
 		});
-		it ('should have an empty name when no parameter is passed', function() {
+
+		it('should have an empty name when no parameter is passed', function() {
 			let dataInt = new DataInterface();
 			expect(dataInt.name).to.equal("");
-		})
+		});
+
+		it('should throw an error when an invalid market configuration is provided', function() {
+
+			let invalidMarketConfig = {foo: 'bar'};
+
+			function badConstructorCall() {
+				return new DataInterface('TEST', invalidMarketConfig);
+			}
+
+			expect(badConstructorCall).to.throw("Construction Error");
+		});
+		
 	});
 
 	describe('Utility', function() {
