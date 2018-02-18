@@ -189,6 +189,17 @@ class DataInterface {
 		return this.query(text, values);
 	}
 
+	async getRecordsSinceId(table, id) {
+		await this.throwErrorIfInvalidTable(table);
+
+		let text = `SELECT *
+						FROM ${table}
+						WHERE id >= $1`;
+		let values = [id];
+
+		return this.query(text, values);
+	}
+
 }
 
 module.exports = DataInterface;

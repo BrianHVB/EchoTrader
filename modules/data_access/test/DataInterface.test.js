@@ -221,7 +221,7 @@ describe('DataInterface', function() {
 		});
 
 		describe('#getRecordsSinceTradeTime()', function() {
-			it('should create 3 records with an artifical last_trade_time, then return two of those records', function () {
+			it('should create 3 records with an artificial last_trade_time, then return two of those records', function () {
 				const tableName = 'gdax_basic';
 
 				let mark = Date.now();
@@ -237,6 +237,39 @@ describe('DataInterface', function() {
 					.then(() => dataInt.getRecordsSinceTradeTime(tableName, new Date(mark + 1001).toISOString()))
 					.then(rows => rows.length)
 					.should.eventually.equal(2);
+			})
+		});
+
+		describe('#getRecordsSinceId()', function() {
+			it('should create 4 records, then use the id of the first record to return the 4', function() {
+				const tableName = 'gdax_basic';
+
+				let insertions = [];
+
+				insertions[0] = dataInt.insert(tableName, testRecord);
+				for (let i = 1; i <= 3; i++) {
+					insertions[i] = dataInt.insert(tableName, testRecord);
+				}
+
+
+				// async function getResults() {
+				// 	let results = await Promise.all(insertions);
+				// 	let minId = Math.min(...results);
+				// 	let query = await dataInt.getRecordsSinceId(tableName, minId);
+				//
+				// 	console.log(query.length);
+				//
+				// 	return query.length;
+				// }
+				// return getResults().should.eventually.equal(4);
+
+				let results = Promise.all(insertions)
+					.then(completed => Math.min(...completed))
+					.then(minId => dataInt.getRecordsSinceId(tableName, minId))
+					.then(rows => rows.length);
+
+				return results.should.eventually.equal(4);
+
 			})
 		})
 	})
