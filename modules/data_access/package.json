@@ -21,7 +21,8 @@
   "author": "Brian Houle",
   "license": "ISC",
   "dependencies": {
-    "chai": "^4.1.2"
+    "chai": "^4.1.2",
+    "websocket": "^1.0.25"
   },
   "devDependencies": {
     "decache": "^4.4.0"
