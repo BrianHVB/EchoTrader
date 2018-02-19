@@ -22,9 +22,9 @@ class GdaxWebSocketInterface extends EventEmitter {
 		this.typeMap = new Map([
 			["subscriptions", this.onSubscriptions.bind(this)],
 			["heartbeat", this.onHeartbeat.bind(this)],
-			["ticker", null],
-			["snapshot", null],
-			["l2update", null]
+			["ticker", this.onTicker.bind(this)],
+			["snapshot", this.onSnapshot.bind(this)],
+			["l2update", this.onL2Update.bind(this)]
 		]);
 
 
@@ -69,7 +69,7 @@ class GdaxWebSocketInterface extends EventEmitter {
 	onMessage(message) {
 		console.debug(`:onMessage() - [this] = ${this}`);
 		if (message.type !== 'utf8') {
-			console.error(`Message Error: Invalid message type from remote socket. Expected 'utf8' but received ${message.type}.`)
+			console.error(`Message Error: Invalid message type from remote socket. Expected 'utf8' but received ${message.type}.`);
 			return;
 		}
 
@@ -118,6 +118,24 @@ class GdaxWebSocketInterface extends EventEmitter {
 		this.emit('heartbeat', msgObj.product_id, msgObj);
 	}
 
+	onTicker(msgObj) {
+
+		if (msgObj.side) {
+			this.emit('tick', msgObj.product_id, msgObj);
+		}
+		else {
+			this.emit('ticker-summary', msgObj.product_id, msgObj);
+		}
+	}
+
+	onSnapshot(msgObj) {
+		this.emit('l2-snapshot', msgObj.product_id, msgObj);
+	}
+
+	onL2Update(msgObj) {
+		this.emit('l2-update', msgObj.product_id, msgObj);
+	}
+
 
 
 
@@ -130,18 +148,27 @@ let sock = new GdaxWebSocketInterface();
 sock.on('connect', function(remoteAddress) {
 	console.log(`connected to ${remoteAddress}`);
 
-	console.log('subscribing to heartbeat');
-	sock.subscribe('heartbeat', ['BTC-USD']);
+	console.log('subscribing to ticker');
+	sock.subscribe('ticker', ['BTC-USD']);
+	sock.subscribe('ticker', ['ETH-USD']);
 
-	setTimeout(() => sock.close(), 5000);
+	setTimeout(() => sock.close(), 10000);
 });
 
 sock.on('close', function(reason, description) {
 	console.log(`connection closed - ${reason} - ${description}`);
 });
 
-sock.on('heartbeat', (product, msgObj) => {
-	console.log(`Heartbeat from ${product}\n${msgObj}`)
+sock.on('heartbeat', (product) => {
+	console.log(`Heartbeat from ${product}`)
+});
+
+sock.on('ticker-summary', (product, data) => {
+	console.log(`ticker summary from ${product}\n${JSON.stringify(data, null, 2)}`);
+});
+
+sock.on('tick', (product, data) => {
+	console.log(`tick from ${product}\n${JSON.stringify(data, null, 2)}`);
 });
 
 sock.connect();
