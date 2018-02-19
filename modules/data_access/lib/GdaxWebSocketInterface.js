@@ -1,3 +1,9 @@
+// DEBUG
+const DEBUG = false;
+if (!DEBUG) {
+	console.debug = function() {};
+}
+
 // external imports
 const WebSocketClient = require('websocket').client;
 const EventEmitter = require('events');
@@ -11,6 +17,16 @@ class GdaxWebSocketInterface extends EventEmitter {
 		super();
 
 		this.socket = null;
+		this.channels = new Map();
+
+		this.typeMap = new Map([
+			["subscriptions", this.onSubscriptions.bind(this)],
+			["heartbeat", this.onHeartbeat.bind(this)],
+			["ticker", null],
+			["snapshot", null],
+			["l2update", null]
+		]);
+
 
 	}
 
@@ -22,12 +38,17 @@ class GdaxWebSocketInterface extends EventEmitter {
 
 		const remoteUrl = _config.webSocket.gdax.url;
 		const requestedProtocols = _config.webSocket.gdax.requestedProtocols;
-		_client.connect(remoteUrl, requestedProtocols)
+		_client.connect(remoteUrl, requestedProtocols);
 
 		_client.on('connect', webSocket => {
 			this.socket = webSocket;
 			this.emit('connect', this.socket.remoteAddress);
-		})
+
+			console.debug(':registering onMessage');
+			this.socket.on('message', msg => this.onMessage(msg));
+
+		});
+
 	}
 
 	close(reason = 1000) {
@@ -45,6 +66,61 @@ class GdaxWebSocketInterface extends EventEmitter {
 		})
 	}
 
+	onMessage(message) {
+		console.debug(`:onMessage() - [this] = ${this}`);
+		if (message.type !== 'utf8') {
+			console.error(`Message Error: Invalid message type from remote socket. Expected 'utf8' but received ${message.type}.`)
+			return;
+		}
+
+		let dataObj = JSON.parse(message.utf8Data);
+
+		let type = dataObj.type;
+
+		if (this.typeMap.has(type)) {
+			let handler = this.typeMap.get(type);
+			console.debug(`:onMessage() invoke = ${handler}`);
+			handler(dataObj);
+		}
+		else {
+			console.log(`onMessage: Unknown message type [${type}]`);
+		}
+
+	}
+
+	subscribe(channel, books) {
+		console.debug(':subscribe()');
+		let subscriptionRequest = {
+			type: 'subscribe',
+			channels: [{
+					name: channel,
+					product_ids: books
+				}]
+		};
+
+		let request = JSON.stringify(subscriptionRequest, null, 2);
+
+		console.debug(`:subscribe() sending request\n${request}`);
+		this.socket.send(request)
+	}
+
+	onSubscriptions(msgObj) {
+		this.channels.clear();
+
+		msgObj.channels.forEach(channel => {
+			this.channels.set(channel.name, channel.product_ids)
+		});
+
+		this.emit('subscriptions')
+	}
+
+	onHeartbeat(msgObj) {
+		this.emit('heartbeat', msgObj.product_id, msgObj);
+	}
+
+
+
+
 }
 
 
@@ -54,11 +130,18 @@ let sock = new GdaxWebSocketInterface();
 sock.on('connect', function(remoteAddress) {
 	console.log(`connected to ${remoteAddress}`);
 
-	sock.close();
+	console.log('subscribing to heartbeat');
+	sock.subscribe('heartbeat', ['BTC-USD']);
+
+	setTimeout(() => sock.close(), 5000);
 });
 
 sock.on('close', function(reason, description) {
 	console.log(`connection closed - ${reason} - ${description}`);
+});
+
+sock.on('heartbeat', (product, msgObj) => {
+	console.log(`Heartbeat from ${product}\n${msgObj}`)
 });
 
 sock.connect();
