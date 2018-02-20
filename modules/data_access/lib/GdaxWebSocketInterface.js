@@ -21,7 +21,12 @@ class GdaxWebSocketInterface extends EventEmitter {
 
 		this.retryDelay = _config.webSocket.gdax.retryDelay;
 		this.maxRetries = _config.webSocket.gdax.maxRetries;
+		this.keepAlive = _config.webSocket.gdax.keepAlive;
+
 		this.retryAttempts = 0;
+		this.missingPingResponses = 0;
+
+
 
 		this.typeMap = new Map([
 			["subscriptions", this.onSubscriptions.bind(this)],
@@ -48,6 +53,7 @@ class GdaxWebSocketInterface extends EventEmitter {
 		_client.on('connect', webSocket => this.onConnect(webSocket));
 		_client.on('connectFailed', error => this.onConnectFailed(error));
 
+
 	}
 
 	close(reason = 1000) {
@@ -56,19 +62,79 @@ class GdaxWebSocketInterface extends EventEmitter {
 			return;
 		}
 
+		console.debug(`:close() - calling socket.close()`);
+		this.emit('clientClose', reason);
 		this.socket.close(reason);
 
+	}
+
+	ping(payload = 'alive?', responseHandler = function() {},) {
+		if (!this.socket) {
+			return;
+		}
+
+		console.log(`sending ping: payload = [${payload}]`);
+		this.socket.ping(payload);
+
+		this.socket.once('pong', data => {
+			console.log(`ping reply: data = [${data}]`);
+			responseHandler(data);
+			this.emit('pong', data);
+		})
 	}
 
 	onConnect(webSocketConnection) {
 		this.socket = webSocketConnection;
 		this.retryAttempts = 0;
+		this.missingPingResponses = 0;
 
 		this.emit('connect', this.socket.remoteAddress);
 
-		console.debug(':registering onMessage and onClose');
+		console.debug(':registering onMessage, onClose');
 		this.socket.on('message', msg => this.onMessage(msg));
 		this.socket.on('close', (reason, description) => this.onClose(reason, description));
+
+		if (this.keepAlive && this.keepAlive.enabled) {
+			this.setupKeepAlive();
+		}
+	}
+
+	setupKeepAlive() {
+		console.debug(":setupKeepAlive()");
+
+		let noReply = function() {
+			this.missingPingResponses++;
+			console.debug(`:keepAlive - noReply() -  [missing = ${this.missingPingResponses}]`);
+		}.bind(this);
+
+		let sendPing = function() {
+			console.debug(`:keepAlive - sendPing() - starting timer`);
+			let timer = setTimeout(noReply, this.keepAlive.timeToWait);
+			const payload = Math.random();
+			this.ping(payload, () => {
+				console.debug(`:keepAlive - sendPing() - responseCallback() -- clearing timer`)
+				clearTimeout(timer);
+				this.missingPingResponses = 0;
+			});
+		}.bind(this);
+
+		let interval = setInterval(() => {
+			console.debug(`:keepAlive - interval() - checking missed responses`);
+			if (this.missingPingResponses >= this.keepAlive.numMissedResponses) {
+				console.debug(`:keepAlive - interval() - dead connection detected - clearing interval`);
+				clearInterval(interval);
+				this.socket = null;
+				console.debug(`:keepAlive - interval() - socket closed - calling connect()`);
+				this.connect();
+			}
+			else {
+				sendPing()
+			}
+		}, this.keepAlive.pollFrequency);
+
+		this.on('clientClose', () => {
+			clearInterval(interval);
+		})
 	}
 
 	onConnectFailed(errorDescription) {
@@ -179,11 +245,14 @@ let sock = new GdaxWebSocketInterface();
 sock.on('connect', function(remoteAddress) {
 	console.log(`connected to ${remoteAddress}`);
 
-	console.log('subscribing to ticker');
-	sock.subscribe('ticker', ['BTC-USD']);
-	sock.subscribe('ticker', ['ETH-USD']);
+	console.log('subscribing to heartbeat');
+	sock.subscribe('heartbeat', ['BTC-USD']);
+	// sock.subscribe('ticker', ['BTC-USD']);
+	// sock.subscribe('ticker', ['ETH-USD']);
 
-	setTimeout(() => sock.close(), 5000);
+	//sock.ping('test');
+
+	setTimeout(() => sock.close(), 50000);
 });
 
 sock.on('close', function(reason, description) {
