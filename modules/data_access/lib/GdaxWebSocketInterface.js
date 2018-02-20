@@ -1,5 +1,5 @@
 // DEBUG
-const DEBUG = false;
+const DEBUG = true;
 if (!DEBUG) {
 	console.debug = function() {};
 }
@@ -19,6 +19,10 @@ class GdaxWebSocketInterface extends EventEmitter {
 		this.socket = null;
 		this.channels = new Map();
 
+		this.retryDelay = _config.webSocket.gdax.retryDelay;
+		this.maxRetries = _config.webSocket.gdax.maxRetries;
+		this.retryAttempts = 0;
+
 		this.typeMap = new Map([
 			["subscriptions", this.onSubscriptions.bind(this)],
 			["heartbeat", this.onHeartbeat.bind(this)],
@@ -34,20 +38,15 @@ class GdaxWebSocketInterface extends EventEmitter {
 		if (this.socket) {
 			return;
 		}
+
 		_client = new WebSocketClient();
 
 		const remoteUrl = _config.webSocket.gdax.url;
 		const requestedProtocols = _config.webSocket.gdax.requestedProtocols;
 		_client.connect(remoteUrl, requestedProtocols);
 
-		_client.on('connect', webSocket => {
-			this.socket = webSocket;
-			this.emit('connect', this.socket.remoteAddress);
-
-			console.debug(':registering onMessage');
-			this.socket.on('message', msg => this.onMessage(msg));
-
-		});
+		_client.on('connect', webSocket => this.onConnect(webSocket));
+		_client.on('connectFailed', error => this.onConnectFailed(error));
 
 	}
 
@@ -59,11 +58,43 @@ class GdaxWebSocketInterface extends EventEmitter {
 
 		this.socket.close(reason);
 
-		this.socket.on('close', (reason, description) => {
-			console.debug(`connection closed [reason = ${reason}]`);
-			this.socket = null;
-			this.emit('close', reason, description);
-		})
+	}
+
+	onConnect(webSocketConnection) {
+		this.socket = webSocketConnection;
+		this.retryAttempts = 0;
+
+		this.emit('connect', this.socket.remoteAddress);
+
+		console.debug(':registering onMessage and onClose');
+		this.socket.on('message', msg => this.onMessage(msg));
+		this.socket.on('close', (reason, description) => this.onClose(reason, description));
+	}
+
+	onConnectFailed(errorDescription) {
+		console.error(`Connection Failed: ${errorDescription}`);
+		this.socket = null;
+
+
+		if (this.retryAttempts !== this.maxRetries || this.maxRetries === -1) {
+			this.retryAttempts++;
+			let boundConnect = this.connect.bind(this);
+
+			console.debug(`Setting timeout of ${this.retryDelay} for connect(). ${this.maxRetries - this.retryAttempts} attempts remaining`);
+			setTimeout(() => boundConnect(), this.retryDelay);
+		}
+		else {
+			console.log(`Max connection attempts [${this.retryAttempts}] reached. Giving up`);
+		}
+
+
+		this.emit('connectFailed', errorDescription);
+	}
+
+	onClose(reason, description) {
+		console.debug(`connection closed [reason = ${reason}]`);
+		this.socket = null;
+		this.emit('close', reason, description);
 	}
 
 	onMessage(message) {
@@ -152,7 +183,7 @@ sock.on('connect', function(remoteAddress) {
 	sock.subscribe('ticker', ['BTC-USD']);
 	sock.subscribe('ticker', ['ETH-USD']);
 
-	setTimeout(() => sock.close(), 10000);
+	setTimeout(() => sock.close(), 5000);
 });
 
 sock.on('close', function(reason, description) {
