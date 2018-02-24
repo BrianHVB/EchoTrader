@@ -9,6 +9,8 @@ db-conn.*
 
 # Temp
 tmp
+tmp/
+tmp.old/
 
 # Presentations
 presentations/

@@ -137,7 +137,6 @@ describe('DataInterface', function() {
 				let testRecord2 = Object.assign({}, testRecord);
 				testRecord2[invalidColumn] = 'test data';
 
-
 				let result = dataInt.buildInsertQuery(testRecord2, 'gdax_basic');
 
 				testRecord2.should.include({[invalidColumn]: 'test data'});
@@ -220,10 +219,10 @@ describe('DataInterface', function() {
 				// Each promise contains a nested promise that will be the eventual result of the record insertion.
 				// These sub-promises are created using a timer
 				for (let i = 1; i <= 3; i++) {
-					insertions.push(new Promise((resolve) => {
-						let testRecord2 = Object.assign({}, testRecord);
-						testRecord2.time = new Date(Date.now()).toISOString();
-						setTimeout(() => resolve(dataInt.insert(testRecord2)), milisecondDelay * i)
+					insertions.push(new Promise(resolve => {
+						let recordCopy = Object.assign({}, testRecord);
+						recordCopy.time = new Date(Date.now()).toISOString();
+						setTimeout(() => resolve(dataInt.insert(recordCopy)), milisecondDelay * i)
 					}))
 				}
 
@@ -241,16 +240,16 @@ describe('DataInterface', function() {
 		});
 
 		describe('#getRecordsSinceTradeTime()', function() {
-			it('should create 3 records with an artificial last_trade_time, then return two of those records', function () {
-				const tableName = 'gdax_basic';
-
+			it('should create 3 records with an artificial last_trade_time, ' +
+				'then return two of those records', function () {
 				let mark = Date.now();
 				let insertions = [];
 
 				for (let i = 1; i <= 3; i++) {
 					let testCopy = Object.assign({}, testRecord);
 					testCopy.last_trade_time = new Date(mark + i * 1000).toISOString();
-					insertions.push(dataInt.insert(testCopy))
+					let promiseFromInsert = dataInt.insert(testCopy)
+					insertions.push(promiseFromInsert)
 				}
 
 				return Promise.all(insertions)
