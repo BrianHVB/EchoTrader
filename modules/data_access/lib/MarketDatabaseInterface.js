@@ -16,23 +16,10 @@ let dataConnection = {
 	}
 };
 
-let configurations = {
-	gdax_btc_usd: {
-		exchange: 'GDAX',
-		currency: 'BTC',
-		baseCurrency: 'USD'
-	},
-	gdax_eth_usd: {
-		exchange: 'GDAX',
-		currency: 'ETH',
-		baseCurrency: 'USD'
-	}
-};
+let configurations = require('../config').postgres.configurations;
 
-let tableMap = new Map([
-	[JSON.stringify(configurations.gdax_btc_usd), 'gdax_basic'],
-	[JSON.stringify(configurations.gdax_eth_usd), 'gdax_basic']
-]);
+let tableMap = new Map();
+Object.keys(configurations).forEach(key => tableMap.set(JSON.stringify(configurations[key]), key));
 
 
 class DataInterface {
@@ -61,7 +48,7 @@ class DataInterface {
 			return tableMap.get(key);
 		}
 
-		throw `Construction Error: There is no table associated with ${marketType}`;
+		throw `Construction Error: There is no table associated with ${key}`;
 	}
 
 	async close() {

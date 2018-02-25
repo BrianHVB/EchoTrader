@@ -14,11 +14,13 @@ const DataInterface = require('../lib/MarketDatabaseInterface');
 let dataInt;
 let testRecord;
 
+let testTable = 'gdax_ltc_usd';
+
 before(function() {
 
 	let marketConfig = {
 		exchange: 'GDAX',
-		currency: 'BTC',
+		currency: 'LTC',
 		baseCurrency: 'USD'
 	};
 
@@ -99,8 +101,8 @@ describe('DataInterface', function() {
 
 	describe('gdax schema', function() {
 		describe("#getPrimaryKeyColumnName()", function() {
-			it ('should identify the primary key field in the gdax_basic table', function() {
-				let queryResult = dataInt.getPrimaryKeyColumnName('gdax_basic');
+			it ('should identify the primary key field in the testTable table', function() {
+				let queryResult = dataInt.getPrimaryKeyColumnName(testTable);
 
 				return queryResult.should.eventually.equal('id');
 
@@ -109,7 +111,7 @@ describe('DataInterface', function() {
 
 		describe('#getInsertionObj()', function() {
 			it ('should identify all of the fields in the gdax table that accept values on insertion', function() {
-				let fields = dataInt.getInsertionObj('gdax_basic');
+				let fields = dataInt.getInsertionObj(testTable);
 
 				return fields.should.eventually.include.all.keys(
 					'average', 'average_volume', 'base_currency', 'currency', 'exchange', 'high',
@@ -131,13 +133,13 @@ describe('DataInterface', function() {
 			});
 
 			it(`should throw an error when a record key doesn't match any columns in the table`, function() {
-				let tableName = 'gdax_basic';
+				let tableName = testTable;
 				let invalidColumn = 'foobar';
 
 				let testRecord2 = Object.assign({}, testRecord);
 				testRecord2[invalidColumn] = 'test data';
 
-				let result = dataInt.buildInsertQuery(testRecord2, 'gdax_basic');
+				let result = dataInt.buildInsertQuery(testRecord2, testTable);
 
 				testRecord2.should.include({[invalidColumn]: 'test data'});
 
@@ -149,7 +151,7 @@ describe('DataInterface', function() {
 
 				let numberOfKeys = Object.entries(testRecord).length;
 
-				let result = dataInt.buildInsertQuery(testRecord, 'gdax_basic');
+				let result = dataInt.buildInsertQuery(testRecord, testTable);
 
 				return result.then(data => {
 					let {query, values} = data;
@@ -183,7 +185,7 @@ describe('DataInterface', function() {
 			});
 
 			it('should return true when the table does not exist', function() {
-				let realTable = 'gdax_basic';
+				let realTable = testTable;
 				return dataInt.isTable(realTable).should.eventually.be.true;
 			})
 		});
@@ -210,7 +212,7 @@ describe('DataInterface', function() {
 
 		describe('#getRecordsBetweenTime()', function() {
 			it('should mark time, create three records, end time, then return the three', function() {
-				const tableName = 'gdax_basic';
+				const tableName = testTable;
 				const milisecondDelay = 200;
 				let start = new Date(Date.now()).toISOString();
 				let insertions = [];
@@ -248,7 +250,7 @@ describe('DataInterface', function() {
 				for (let i = 1; i <= 3; i++) {
 					let testCopy = Object.assign({}, testRecord);
 					testCopy.last_trade_time = new Date(mark + i * 1000).toISOString();
-					let promiseFromInsert = dataInt.insert(testCopy)
+					let promiseFromInsert = dataInt.insert(testCopy);
 					insertions.push(promiseFromInsert)
 				}
 
@@ -261,7 +263,7 @@ describe('DataInterface', function() {
 
 		describe('#getRecordsSinceId()', function() {
 			it('should create 4 records, then use the id of the first record to return the 4', function() {
-				const tableName = 'gdax_basic';
+				const tableName = testTable;
 
 				let insertions = [];
 

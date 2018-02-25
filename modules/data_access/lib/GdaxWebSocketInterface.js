@@ -1,5 +1,5 @@
 // DEBUG
-const DEBUG = true;
+const DEBUG = false;
 if (!DEBUG) {
 	console.debug = function() {};
 }
@@ -238,42 +238,42 @@ class GdaxWebSocketInterface extends EventEmitter {
 
 }
 
+module.exports = GdaxWebSocketInterface;
 
-
-let sock = new GdaxWebSocketInterface();
-
-sock.on('connect', function(remoteAddress) {
-	console.log(`connected to ${remoteAddress}`);
-
-	console.log('subscribing to heartbeat');
-	sock.subscribe('heartbeat', ['BTC-USD']);
-	// sock.subscribe('ticker', ['BTC-USD']);
-	// sock.subscribe('ticker', ['ETH-USD']);
-
-	//sock.ping('test');
-
-	setTimeout(() => sock.close(), 50000);
-});
-
-sock.on('close', function(reason, description) {
-	console.log(`connection closed - ${reason} - ${description}`);
-});
-
-sock.on('heartbeat', (product) => {
-	console.log(`Heartbeat from ${product}`)
-});
-
-sock.on('ticker-summary', (product, data) => {
-	console.log(`ticker summary from ${product}\n${JSON.stringify(data, null, 2)}`);
-});
-
-sock.on('tick', (product, data) => {
-	console.log(`tick from ${product}\n${JSON.stringify(data, null, 2)}`);
-});
-
-sock.connect();
-
-
+// let sock = new GdaxWebSocketInterface();
+//
+// sock.on('connect', function(remoteAddress) {
+// 	console.log(`connected to ${remoteAddress}`);
+//
+// 	console.log('subscribing to heartbeat');
+// 	sock.subscribe('heartbeat', ['BTC-USD']);
+// 	// sock.subscribe('ticker', ['BTC-USD']);
+// 	// sock.subscribe('ticker', ['ETH-USD']);
+//
+// 	//sock.ping('test');
+//
+// 	setTimeout(() => sock.close(), 50000);
+// });
+//
+// sock.on('close', function(reason, description) {
+// 	console.log(`connection closed - ${reason} - ${description}`);
+// });
+//
+// sock.on('heartbeat', (product) => {
+// 	console.log(`Heartbeat from ${product}`)
+// });
+//
+// sock.on('ticker-summary', (product, data) => {
+// 	console.log(`ticker summary from ${product}\n${JSON.stringify(data, null, 2)}`);
+// });
+//
+// sock.on('tick', (product, data) => {
+// 	console.log(`tick from ${product}\n${JSON.stringify(data, null, 2)}`);
+// });
+//
+// sock.connect();
+//
+//
 
 
 
