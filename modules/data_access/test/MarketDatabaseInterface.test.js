@@ -14,13 +14,13 @@ const DataInterface = require('../lib/MarketDatabaseInterface');
 let dataInt;
 let testRecord;
 
-let testTable = 'gdax_ltc_usd';
+let testTable = 'gdax_eth_usd';
 
 before(function() {
 
 	let marketConfig = {
 		exchange: 'GDAX',
-		currency: 'LTC',
+		currency: 'ETH',
 		baseCurrency: 'USD'
 	};
 

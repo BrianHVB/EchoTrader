@@ -19,7 +19,7 @@ let dataConnection = {
 let configurations = require('../config').postgres.configurations;
 
 let tableMap = new Map();
-Object.keys(configurations).forEach(key => tableMap.set(JSON.stringify(configurations[key]), key));
+configurations.forEach(itm => tableMap.set(JSON.stringify(itm.key), itm));
 
 
 class DataInterface {
@@ -34,7 +34,7 @@ class DataInterface {
 		this[_pool] = dataConnection.pool;
 
 		if (marketType) {
-			this.table = DataInterface.setDefaultTable(marketType);
+			this.table = DataInterface.getDefaultTable(marketType);
 		}
 		else {
 			this.table = ''
@@ -42,10 +42,10 @@ class DataInterface {
 
 	}
 
-	static setDefaultTable(marketType) {
+	static getDefaultTable(marketType) {
 		let key = JSON.stringify(marketType);
 		if (tableMap.has(key)) {
-			return tableMap.get(key);
+			return tableMap.get(key).table;
 		}
 
 		throw `Construction Error: There is no table associated with ${key}`;

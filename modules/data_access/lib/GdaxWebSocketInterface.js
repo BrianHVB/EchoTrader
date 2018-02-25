@@ -73,11 +73,11 @@ class GdaxWebSocketInterface extends EventEmitter {
 			return;
 		}
 
-		console.log(`sending ping: payload = [${payload}]`);
+		console.debug(`sending ping: payload = [${payload}]`);
 		this.socket.ping(payload);
 
 		this.socket.once('pong', data => {
-			console.log(`ping reply: data = [${data}]`);
+			console.debug(`ping reply: data = [${data}]`);
 			responseHandler(data);
 			this.emit('pong', data);
 		})
@@ -187,6 +187,9 @@ class GdaxWebSocketInterface extends EventEmitter {
 
 	subscribe(channel, books) {
 		console.debug(':subscribe()');
+		if (books.constructor !== Array) {
+			books = [books];
+		}
 		let subscriptionRequest = {
 			type: 'subscribe',
 			channels: [{

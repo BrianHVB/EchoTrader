@@ -26,11 +26,17 @@ after(function() {
 describe('GdaxDatabaseBridge', function() {
 
 	describe('#constructor', function() {
-		it('Constructed object should have a MarketDatabaseInterface for each Postgres configuration in config', function() {
-			let numberOfConfigurations = Object.keys(config.postgres.configurations).length ;
-			[...bridge.databaseInterfaces.values()].should.all.exist;
-			bridge.databaseInterfaces.size.should.equal(numberOfConfigurations);
+		it('Constructed object should have a SignalDatabase entry for each Postgres configuration in config', function() {
+			let numberOfConfigurations = config.postgres.configurations.length ;
+
+			bridge.signalTableMap.size.should.equal(numberOfConfigurations);
 		})
 	});
+
+	describe('connection', function() {
+		it('should connect without error', function() {
+			bridge.connectAndSubscribe();
+		})
+	})
 
 });
