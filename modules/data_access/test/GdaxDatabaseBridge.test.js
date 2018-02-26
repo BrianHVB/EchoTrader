@@ -27,7 +27,7 @@ describe('GdaxDatabaseBridge', function() {
 
 	describe('#constructor', function() {
 		it('Constructed object should have a SignalDatabase entry for each Postgres configuration in config', function() {
-			let numberOfConfigurations = config.postgres.configurations.length ;
+			let numberOfConfigurations = config.postgres.marketTables.length ;
 
 			bridge.signalTableMap.size.should.equal(numberOfConfigurations);
 		})

@@ -16,10 +16,10 @@ let dataConnection = {
 	}
 };
 
-let configurations = require('../config').postgres.configurations;
+let _marketTables = require('../config').postgres.marketTables;
 
 let tableMap = new Map();
-configurations.forEach(itm => tableMap.set(JSON.stringify(itm.key), itm));
+_marketTables.forEach(itm => tableMap.set(JSON.stringify(itm.key), itm));
 
 
 class DataInterface {
@@ -51,6 +51,30 @@ class DataInterface {
 		throw `Construction Error: There is no table associated with ${key}`;
 	}
 
+	static buildInsertTemplate(record) {
+		let result = {};
+		result.columnString = '';
+		result.valueString = '';
+		result.values = [];
+
+		let recordMap = new Map(Object.entries(record));
+		let count = 1;
+		let size = recordMap.size;
+
+		recordMap.forEach((val, key) => {
+			result.columnString += key;
+			result.valueString += '$' + count;
+			if (count !== size) {
+				result.columnString += ', ';
+				result.valueString += ', ';
+			}
+
+			result.values[count - 1] = val;
+			count++;
+		});
+		return result;
+	}
+
 	async close() {
 		console.debug('calling pool.end()');
 		await this[_pool].end();
@@ -72,7 +96,26 @@ class DataInterface {
 
 		let result = await this.query(query, values);
 		return result[0].id;
+	}
 
+	async getInsertionObj(tableName) {
+		let query = `SELECT a.column_name, b.constraint_name
+						FROM information_schema.columns AS a
+                  FULL OUTER JOIN information_schema.key_column_usage b
+                  ON a.column_name = b.column_name
+                  WHERE a.table_name = $1
+                  AND (b.constraint_name IS NULL OR b.constraint_name NOT LIKE '%pkey%')
+						ORDER BY column_name ASC;`;
+		let values = [tableName];
+
+		let result = await this.query(query, values);
+
+		let weakMap = {};
+		result.forEach(itm => {
+			weakMap[itm.column_name] = null;
+		});
+
+		return weakMap;
 	}
 
 	async checkValidInsertion(record, tableName) {
@@ -87,8 +130,18 @@ class DataInterface {
 				throw `Insert Error: Object property ['${key}'] does not correspond to a column in table '${tableName}'`;
 			}
 		});
+	}
 
+	async buildInsertQuery(record, tableName) {
+		await this.checkValidInsertion(record, tableName);
 
+		let template = DataInterface.buildInsertTemplate(record);
+		let primaryKey = await this.getPrimaryKeyColumnName(tableName);
+		let query = `INSERT INTO ${tableName} (${template.columnString})
+						VALUES (${template.valueString})
+						RETURNING ${primaryKey};`;
+
+		return {query: query, values: template.values};
 	}
 
 	async isTable(tableName) {
@@ -107,62 +160,11 @@ class DataInterface {
 		return false;
 	}
 
-	async buildInsertQuery(record, tableName) {
-		await this.checkValidInsertion(record, tableName);
-
-		let template = DataInterface.buildInsertTemplate(record);
-		let primaryKey = await this.getPrimaryKeyColumnName(tableName);
-		let query = `INSERT INTO ${tableName} (${template.columnString})
-						VALUES (${template.valueString})
-						RETURNING ${primaryKey};`;
-
-		return {query: query, values: template.values};
-	}
-
-	async getInsertionObj(tableName) {
-		let query = `SELECT a.column_name, b.constraint_name
-						FROM information_schema.columns AS a
-                  FULL OUTER JOIN information_schema.key_column_usage b
-                  ON a.column_name = b.column_name
-                  WHERE a.table_name = $1
-                  AND (b.constraint_name IS NULL OR b.constraint_name NOT LIKE '%pkey%')
-						ORDER BY column_name ASC;`;
-		let values = [tableName];
-
-		let result = await this.query(query, values);
-
-		let map = {};
-		result.forEach(itm => {
-			map[itm.column_name] = null;
-		});
-
-		return map;
-	}
-
-	static buildInsertTemplate(record) {
-		let result = {};
-		result.columnString = '';
-		result.valueString = '';
-		result.values = [];
-
-		let recordMap = new Map(Object.entries(record));
-		let count = 1;
-		let size = recordMap.size;
-
-		recordMap.forEach((val, key) => {
-			result.columnString += key;
-			result.valueString += '$' + count;
-
-			if (count !== size) {
-				result.columnString += ', ';
-				result.valueString += ', ';
-			}
-
-			result.values[count - 1] = val;
-			count++;
-		});
-
-		return result;
+	async throwErrorIfInvalidTable(tableName) {
+		let valid = await this.isTable(tableName);
+		if (!valid) {
+			throw `Query Error: [${tableName}] is not a valid table`;
+		}
 	}
 
 	async getPrimaryKeyColumnName(tableName) {
@@ -192,13 +194,6 @@ class DataInterface {
 		return result[0];
 	}
 
-	async throwErrorIfInvalidTable(tableName) {
-		let valid = await this.isTable(tableName);
-		if (!valid) {
-			throw `Query Error: [${tableName}] is not a valid table`;
-		}
-	}
-
 	async getRecordsBetweenTime(start, end, tableName = this.table) {
 		await this.throwErrorIfInvalidTable(tableName);
 
@@ -208,7 +203,6 @@ class DataInterface {
 		let values = [start, end];
 
 		return this.query(text, values);
-
 	}
 
 	async getRecordsSinceTradeTime(start, tableName = this.table) {
@@ -232,45 +226,7 @@ class DataInterface {
 
 		return this.query(text, values);
 	}
-
 }
 
 module.exports = DataInterface;
-
-
-// const di = new DataInterface();
-// di.getInsertionObj('gdax_basic').then(data => {
-// 	console.log(data);
-// 	di.close();
-// });
-
-
-// const di = new DataInterface();
-// di.getPrimaryKeyColumnName('gdax_basic').then(data => console.log(data));
-// di.close().then(() => {});
-
-// test
-// const di = new DataInterface('GDAX');
-// di.test('SELECT now()').then(data => {
-// 	console.log(data);
-// 	di.close(() => {});
-// });
-
-// di.getDatabaseTime().then(data => {
-// 	console.log(data);
-// 	di.close().then(() => console.log('closed'))
-// });
-
-// (async function() {
-// 	await di.close();
-// })();
-
-// di.getDatabaseTime().then(data => {
-// 	console.log(data);
-// 	//di.close();
-// });
-
-
-
-
 
