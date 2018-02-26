@@ -1,8 +1,12 @@
 // DEBUG
-const DEBUG = false;
-if (!DEBUG) {
-	console.debug = function() {};
-}
+const oldDebug = console.debug;
+console.debug = function(msg) {
+	const DEBUG = true;
+	if (DEBUG) {
+		oldDebug(msg);
+	}
+};
+
 
 // external imports
 const WebSocketClient = require('websocket').client;
