@@ -2,10 +2,10 @@
 const EventEmitter = require('events');
 
 // internal imports
-const _config = require('./config');
+const _config = require('../config/index');
 const _marketTables = _config.postgres.marketTables;
-const GdaxWebSocketInterface = require('./lib/GdaxWebSocketInterface');
-const MarketDatabaseInterface = require('./lib/MarketDatabaseInterface');
+const GdaxWebSocketInterface = require('./GdaxWebSocketInterface');
+const MarketDatabaseInterface = require('./MarketDatabaseInterface');
 
 // DEBUG
 const oldDebug = console.debug;
@@ -139,7 +139,6 @@ class GdaxDatabaseBridge extends EventEmitter {
 		if (currentData.last_trade_id === lastInsertedId) {
 			console.debug(`no change: last_trade_id = ${currentData.last_trade_id} \t lastInsertId = ${lastInsertedId} : inserting record`);
 			this.insertRecord(productId);
-
 		}
 		else {
 			setImmediate(() => {
@@ -148,8 +147,6 @@ class GdaxDatabaseBridge extends EventEmitter {
 				this.insertRecord(productId);
 			});
 		}
-
-
 	}
 
 	updateCurrentDataFromTick(productId, msg) {

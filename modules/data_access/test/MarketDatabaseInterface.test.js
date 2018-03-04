@@ -27,20 +27,18 @@ before(function() {
 	dataInt = new DataInterface('GDAX', marketConfig);
 
 	testRecord = {
-		'exchange': 'TEST',
-		'currency': 'BTC',
-		'base_currency': 'USD',
+		'market': 'TEST',
 		'time': new Date(Date.now()).toISOString(),
 		'last_trade_id': 0,
-		'last_trade_time': new Date(Date.now() - 50000).toISOString(),
-		'last_trade_side': 'buy',
-		'last_trade_price': 32.34,
-		'last_trade_volume': 0.002,
-		'low': 10.2,
+		'time_open': new Date(Date.now() - 50000).toISOString(),
+		'time_close': new Date(Date.now() - 50000).toISOString(),
+		'open': 12.002,
 		'high': 51.8,
-		'average': 25.2,
-		'total_volume': 38.2,
-		'average_volume': 40.3
+		'low': 10.2,
+		'close': 25.2,
+		'volume_in': 38.2,
+		'volume_out': 40.3,
+		'total_trades': 10
 	}
 });
 
@@ -114,9 +112,9 @@ describe('DataInterface', function() {
 				let fields = dataInt.getInsertionObj(testTable);
 
 				return fields.should.eventually.include.all.keys(
-					'average', 'average_volume', 'base_currency', 'currency', 'exchange', 'high',
-					'last_trade_id', 'last_trade_price', 'last_trade_side', 'last_trade_time', 'last_trade_volume',
-					'low', 'time', 'total_volume');
+					'market', 'time', 'open', 'high', 'low', 'close',
+					'volume_in', 'volume_out', 'last_trade_id', 'total_trades',
+					'time_open', 'time_close');
 			})
 		});
 
@@ -241,21 +239,21 @@ describe('DataInterface', function() {
 			})
 		});
 
-		describe('#getRecordsSinceTradeTime()', function() {
-			it('should create 3 records with an artificial last_trade_time, ' +
+		describe('#getRecordsSinceTime()', function() {
+			it('should create 3 records with an artificial time, ' +
 				'then return two of those records', function () {
 				let mark = Date.now();
 				let insertions = [];
 
 				for (let i = 1; i <= 3; i++) {
 					let testCopy = Object.assign({}, testRecord);
-					testCopy.last_trade_time = new Date(mark + i * 1000).toISOString();
+					testCopy.time = new Date(mark + i * 1000).toISOString();
 					let promiseFromInsert = dataInt.insert(testCopy);
 					insertions.push(promiseFromInsert)
 				}
 
 				return Promise.all(insertions)
-					.then(() => dataInt.getRecordsSinceTradeTime(new Date(mark + 1001).toISOString()))
+					.then(() => dataInt.getRecordsSinceTime(new Date(mark + 1001).toISOString()))
 					.then(rows => rows.length)
 					.should.eventually.equal(2);
 			})

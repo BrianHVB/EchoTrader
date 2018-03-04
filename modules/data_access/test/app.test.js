@@ -5,7 +5,7 @@ const decache = require('decache');
 
 // app and lib imports
 decache('../app');
-const app = require('../app');
+const app = require('../marketDataHarvester');
 
 describe('App', function() {
 	describe('private functions', function() {

@@ -205,12 +205,12 @@ class DataInterface {
 		return this.query(text, values);
 	}
 
-	async getRecordsSinceTradeTime(start, tableName = this.table) {
+	async getRecordsSinceTime(start, tableName = this.table) {
 		await this.throwErrorIfInvalidTable(tableName);
 
 		let text = `SELECT *
 						FROM ${tableName}
-						WHERE last_trade_time >= $1`;
+						WHERE time >= $1`;
 		let values = [start];
 
 		return this.query(text, values);

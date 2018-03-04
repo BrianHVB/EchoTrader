@@ -9,7 +9,7 @@ chai.use(chaiAsPromised);
 chai.use(require('chai-things'));
 
 // app and lib imports
-const GdaxDatabaseBridge = require('../GdaxDatabaseBridge');
+const GdaxDatabaseBridge = require('../lib/GdaxDatabaseBridge');
 const config = require('../config');
 
 // globals
