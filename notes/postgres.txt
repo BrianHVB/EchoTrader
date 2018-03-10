@@ -43,6 +43,9 @@ Views are a key component of good SQL design. Views can be used any place a real
 	\dt *					list tables in all schemas of current database
 	\d + [table]			list all columns and types in named db
 	\x						pretty print results
+	\du						list all database users / roles
+	\z						list access privlages to tables in current database
+	
 	
 	
 	// Create a new database
@@ -58,6 +61,14 @@ Views are a key component of good SQL design. Views can be used any place a real
 	SELECT table_schema,table_name
 	FROM information_schema.tables
 	ORDER BY table_schema,table_name;
+	
+	// Create a new user / role
+	CREATE ROLE [name] {OPTIONS}
+		NOSUPERUSER, SUPERUSER
+		NOLOGIN, LOGIN
+		PASSWORD <password>
+	//Example
+	CREATE ROLE test WITH SUPERUSER LOGIN PASSWORD 'abc'
 	
 	// get current version
 	SELECT version();
@@ -200,8 +211,35 @@ Views are a key component of good SQL design. Views can be used any place a real
 	) INHERITS (parent) -- child table gains all columns of parent
 	
 	
+	// GET SIZE OF TABLE
+	SELECT pg_size_pretty(pg_database_size('table'));
 	
 	
+	
+FUNCTIONS
+
+// Loop through tables and delete records corresponding to some condition
+
+CREATE OR REPLACE FUNCTION clear_test() RETURNS INT AS $$
+DECLARE
+  tables CURSOR FOR
+    SELECT table_name
+    FROM information_schema.tables
+    WHERE table_name LIKE 'gdax_%'
+    ORDER BY table_name;
+BEGIN
+  FOR table_record IN tables LOOP
+    EXECUTE 'DELETE FROM ' || table_record.table_name || ' WHERE exchange = ''TEST'' ';
+  END LOOP;
+  RETURN 0;
+END; $$
+LANGUAGE PLPGSQL;
+	
+	
+	
+EXPORT: 
+
+pg_dump --file=<out_file.sql> --clean --create --no-owner --dbname=<database> --username=<username>
 		
 		
 

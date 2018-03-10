@@ -58,3 +58,9 @@ As a day trader, I want to be able to use the same strategy for both simulated a
 As a strategy developer, I want a documented API for creating and testing strategies.
 
 As a day trader, I need to know that my strategy will behave in a predictable manner when live trading.
+
+
+
+
+
+
