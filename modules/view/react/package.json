@@ -1,0 +1,40 @@
+{
+  "name": "echotrader-views-react",
+  "version": "1.0.0",
+  "description": "Various views for displaying market data and interacting with EchoTrader services",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --mode development",
+    "build-production": "webpack --mode production",
+    "dev-server": "webpack-dev-server --mode development --open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BrianHVB/EchoTrader.git"
+  },
+  "author": "Brian Houle",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BrianHVB/EchoTrader/issues"
+  },
+  "homepage": "https://github.com/BrianHVB/EchoTrader#readme",
+  "dependencies": {
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "css-loader": "^0.28.10",
+    "html-loader": "^0.5.5",
+    "html-webpack-plugin": "^3.0.6",
+    "style-loader": "^0.20.3",
+    "webpack": "^4.1.1",
+    "webpack-cli": "^2.0.11",
+    "webpack-dev-server": "^3.1.1"
+  }
+}
