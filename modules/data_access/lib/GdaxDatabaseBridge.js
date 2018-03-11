@@ -48,20 +48,18 @@ class GdaxDatabaseBridge extends EventEmitter {
 		_marketTables.forEach(itm => {
 			if (itm.key.exchange === 'GDAX') {
 				this.currentMarketData.set(itm.signal, {
-					exchange: itm.key.exchange,
-					currency: itm.key.currency,
-					base_currency: itm.key.baseCurrency,
-					last_trade_id: 0,
-					last_trade_side: null,
-					last_trade_time: null,
-					last_trade_price: 0,
-					last_trade_volume: 0,
 					time: null,
+					market: `${itm.key.exchange}-${itm.key.currency}-${itm.key.baseCurrency}`,
+					open: 0,
 					high: 0,
 					low: 0,
-					average: 0,
-					total_volume: 0,
-					average_volume: 0
+					close: 0,
+					volume_in: 0,
+					volume_out: 0,
+					total_trades: 0,
+					time_open: new Date(Date.now()),
+					time_close: null,
+					last_trade_id: null
 				})
 			}
 		})
@@ -89,6 +87,14 @@ class GdaxDatabaseBridge extends EventEmitter {
 
 	clearPriceAndVolumeData(productId) {
 		this.currentPriceData.set(productId, []);
+		this.currentVolumeData.set(productId, []);
+	}
+
+	clearPriceData(productId) {
+		this.currentPriceData.set(productId, []);
+	}
+
+	clearVolumeData(productId) {
 		this.currentVolumeData.set(productId, []);
 	}
 
@@ -131,31 +137,35 @@ class GdaxDatabaseBridge extends EventEmitter {
 
 		console.debug(`::onInterval() - product = ${productId}\t last id = ${lastInsertedId}\t current id = ${currentData.last_trade_id}`);
 
-		if (currentData.last_trade_id === 0) {
+		if (currentData.last_trade_id === null) {
 			console.debug(`no data: last_trade_id = ${currentData.last_trade_id}`);
-			return;
-		}
-
-		if (currentData.last_trade_id === lastInsertedId) {
-			console.debug(`no change: last_trade_id = ${currentData.last_trade_id} \t lastInsertId = ${lastInsertedId} : inserting record`);
-			this.insertRecord(productId);
 		}
 		else {
 			setImmediate(() => {
-				console.debug(`change detected: lastId = ${currentData.last_trade_id} \t lastInsert = ${lastInsertedId} : calculating...`);
+				console.debug(`:onInterval():update() lastId = ${currentData.last_trade_id} \t lastInsert = ${lastInsertedId} : calculating...`);
 				this.calculateAndUpdateTemporalData(productId);
 				this.insertRecord(productId);
 			});
+
 		}
+
 	}
 
 	updateCurrentDataFromTick(productId, msg) {
 		let dataObj = this.currentMarketData.get(productId);
+
 		dataObj.last_trade_id = msg.trade_id;
-		dataObj.last_trade_side = msg.side;
-		dataObj.last_trade_time = msg.time;
 		this.currentPriceData.get(productId).push(Number(msg.price));
-		this.currentVolumeData.get(productId).push(Number(msg.last_size));
+
+		if (msg.side.toLowerCase() === 'buy') {
+			this.currentVolumeData.get(productId).push(Number(msg.last_size));
+		}
+		else if (msg.side.toLowerCase() === 'sell') {
+			this.currentVolumeData.get(productId).push(-1 * Number(msg.last_size));
+		}
+		else {
+			console.debug(`:updateCurrentDataFromTick() - unknown value for 'side' [side = ${msg.side}`);
+		}
 
 		console.debug(`::updateCurrentDataFromTick() - data updated`)
 	}
@@ -167,17 +177,30 @@ class GdaxDatabaseBridge extends EventEmitter {
 
 		let prices = this.currentPriceData.get(productId);
 		let volumes = this.currentVolumeData.get(productId);
-		dataObj.last_trade_price = prices[prices.length - 1];
-		dataObj.last_trade_volume = volumes[volumes.length - 1];
-		dataObj.high = Math.max(...prices);
-		dataObj.low = Math.min(...prices);
-		dataObj.average = prices.reduce((prev, current) => prev + current, 0) / prices.length;
-		dataObj.total_volume = volumes.reduce((prev, current) => prev + current, 0);
-		dataObj.average_volume = dataObj.total_volume / volumes.length;
+
+		// only update prices if there has been activity during the last interval
+		if (prices.length > 0) {
+			dataObj.open = prices[0];
+			dataObj.high = Math.max(...prices);
+			dataObj.low = Math.min(...prices);
+			dataObj.close = prices[prices.length - 1];
+		}
+
+		dataObj.volume_in = volumes.filter(itm => itm < 0).map(Math.abs).reduce((prev, current) => prev + current, 0);
+		dataObj.volume_out = volumes.filter(itm => itm > 0).reduce((prev, current) => prev + current, 0);
+
+		dataObj.total_trades = prices.length;
+
+		dataObj.time_close = new Date(Date.now());
 
 		this.clearPriceAndVolumeData(productId);
 
 		console.debug(`::calculateTemporalData() - complete`);
+	}
+
+	updateTimeOpen(productId) {
+		let dataObj = this.currentMarketData.get(productId);
+		dataObj.time_open = new Date(Date.now());
 	}
 
 	insertRecord(productId) {
@@ -191,14 +214,14 @@ class GdaxDatabaseBridge extends EventEmitter {
 		let insertion = this.databaseInterface.insert(currentData, this.signalTableMap.get(productId));
 		insertion.catch(err => {
 			console.error(`Error: Promise rejection on database insertion\nDetails: ${err}\n${JSON.stringify(currentData, null, 2)}`)
-		})
+		}).then(() => this.updateTimeOpen(productId));
+
 	}
 
 }
 
 module.exports = GdaxDatabaseBridge;
 
-bridge = new GdaxDatabaseBridge();
-bridge.connectAndSubscribe();
+
 
 
