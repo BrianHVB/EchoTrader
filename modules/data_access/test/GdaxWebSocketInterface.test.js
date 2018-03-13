@@ -10,10 +10,11 @@ chai.use(chaiAsPromised);
 // app and lib imports
 const GdaxWebSocketInterface = require('../lib/GdaxWebSocketInterface');
 
-before();
-
-after();
-
-describe('GdaxWebSocketInterface', function() {
+before(function () {
 
 });
+
+after(function() {
+
+});
+

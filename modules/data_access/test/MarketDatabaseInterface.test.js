@@ -107,16 +107,16 @@ describe('DataInterface', function() {
 			});
 		});
 
-		describe('#getInsertionObj()', function() {
-			it ('should identify all of the fields in the gdax table that accept values on insertion', function() {
-				let fields = dataInt.getInsertionObj(testTable);
-
-				return fields.should.eventually.include.all.keys(
-					'market', 'time', 'open', 'high', 'low', 'close',
-					'volume_in', 'volume_out', 'last_trade_id', 'total_trades',
-					'time_open', 'time_close');
-			})
-		});
+		// describe('#getInsertionObj()', function() {
+		// 	it ('should identify all of the fields in the gdax table that accept values on insertion', function() {
+		// 		let fields = dataInt.getInsertionObj(testTable);
+		//
+		// 		return fields.should.eventually.include.all.keys(
+		// 			'market', 'time', 'open', 'high', 'low', 'close',
+		// 			'volume_in', 'volume_out', 'last_trade_id', 'total_trades',
+		// 			'time_open', 'time_close');
+		// 	})
+		// });
 
 	});
 

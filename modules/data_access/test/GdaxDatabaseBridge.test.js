@@ -20,7 +20,7 @@ before(function() {
 });
 
 after(function() {
-
+	process.exit();
 });
 
 describe('GdaxDatabaseBridge', function() {
@@ -33,10 +33,5 @@ describe('GdaxDatabaseBridge', function() {
 		})
 	});
 
-	describe('connection', function() {
-		it('should connect without error', function() {
-			bridge.connectAndSubscribe();
-		})
-	})
 
 });
