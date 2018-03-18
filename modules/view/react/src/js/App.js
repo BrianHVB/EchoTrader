@@ -62,7 +62,7 @@ class HelloWorld extends React.Component {
 }
 
 // create a reference to the container
-const testContainer = document.querySelector("#react-test");
+let testContainer = document.querySelector("#react-test");
 
 // if component is created as a class, no need to call `new`, this happens automagically
 // set a property just like any other HTML tag
@@ -102,9 +102,9 @@ class Greeting extends React.Component {
 	render() {
 		return (
 			<div>
-				<p>Hello <Name color={'purple'}>Sam</Name></p>
-				<p>Hello <Name color={this.props.defaultColor}>John</Name></p>
-				<p>Hello <Name color={null}>Brittany</Name></p>
+				<div>Hello <Name color={'purple'}>Sam</Name></div>
+				<div>Hello <Name color={this.props.defaultColor}>John</Name></div>
+				<div>Hello <Name color={null}>Brittany</Name></div>
 			</div>
 		)
 	}
@@ -201,8 +201,8 @@ ReactDOM.render(cards, newElem(testContainer));
 let cardList = [];
 let colors = ["#FFA737", "#ABCDEF", "#13579B", "#CA8642", "#0DEAD0", "#D00F75"];
 
-colors.forEach(color => {
-	cardList.push(<Card cardColor={color}/>)
+colors.forEach((color, index) => {
+	cardList.push(<Card key={index} cardColor={color}/>)
 });
 
 //inserting an array as a child element will insert all of the elements it contains
@@ -211,7 +211,7 @@ ReactDOM.render(<div>{cardList}</div>, newElem(testContainer));
 //using map directly also works
 ReactDOM.render(
 	<div>
-		{colors.map(itm => <Card cardColor={itm}/>)}
+		{colors.map((itm, index) => <Card key={index} cardColor={itm}/>)}
 	</div>,
 newElem(testContainer));
 
@@ -267,4 +267,231 @@ ReactDOM.render(<Shirt color="blue" num="3.14" size={"medium"}/>, newElem(testCo
 
 
 
+
+// JSX and render() rules
+// * You can only return a single root node
+// * Can't specify CSS inline, must use an object
+// * Reserved words: can't use Javascript words as attribute or tag names
+// * Attribute identifiers are camel-cased
+// * Comments in the child of a tag must use the { /* comment goes here */ } syntax
+// * components must be capitalized, both in JSX and when they are defined
+// * tags are lowercase
+
+
+
+
+
+
+
+// 8. Dealing with state
+
+class LightningCounter extends React.Component {
+
+	// Class properties are not supported by ES6 (yet). Using this requires Babel stage-2 or transform-class-properties preset
+	state = {
+		strikes: 0
+	};
+
+	// Without state-2 support, state should be set in constructor
+	constructor(props) {
+		super(props);
+
+		// this.state = {
+		// 	strikesAlt: 0
+		// }
+	}
+
+	componentDidMount() {
+
+		// tick() needs to this. The context of {this} should be the component, so must use bind (option 1)
+		// or create tick2() as a class property using an arrow function
+		setInterval(this.tick.bind(this), 1000);
+		setInterval(this.tick2, 1000);
+	}
+
+	render() {
+
+		return (
+			<h1>{this.state.strikes}</h1>
+		);
+	}
+
+	tick() {
+		// using setState here MERGES properties from the new state into the old state, overwriting duplicates
+		// when setState is called, and a change occurs, the component's render() gets automatically called
+		this.setState({
+			strikes: this.state.strikes + 50
+		});
+
+	}
+
+
+	// option 2 - use class properties (needs Babel stage-2 or transform-class-properties) with arrow function
+	// arrow functions don't change context of "this"
+	tick2 = () => {
+		this.setState({
+			strikes: this.state.strikes + 50
+		});
+	}
+
+}
+
+class LightningCounterDisplay extends React.Component {
+
+	render() {
+		let commonStyle = {
+			margin: 0,
+			padding: 0
+		};
+
+		let divStyle = {
+			width: 250,
+			textAlign: "center",
+			backgroundColor: "#020202",
+			padding: 40,
+			fontFamily: "sans-serif",
+			color: "cyan",
+			borderRadius: 10
+		};
+
+		let textStyles = {
+			emphasis: {
+				fontSize: 38,
+				...commonStyle
+			},
+			smallEmphasis: {
+				...commonStyle
+			},
+			small: {
+				fontSize: 17,
+				opacity: 0.5,
+				...commonStyle
+			}
+		};
+
+
+
+		return (
+			<div style={divStyle}>
+				<LightningCounter/>
+				<h2 style={textStyles.smallEmphasis}>Lightning Strikes</h2>
+				<h2 style={textStyles.emphasis}>WORLDWIDE</h2>
+				<p style={textStyles.small}>(since you loaded this example)</p>
+			</div>
+		)
+	}
+}
+
+
+testContainer.innerHTML = "";
+testContainer = testContainer.appendChild(document.createElement("div"));
+//ReactDOM.render(<LightningCounterDisplay/>, testContainer);
+
+
+
+
+
+
+
+
+// Data
+
+class Circle extends React.Component {
+	render() {
+		const dynamicStyle = {
+			backgroundColor: this.props.bgColor
+		};
+
+		return (
+			<div className="circle" style={dynamicStyle}/>
+		)
+	}
+}
+
+function makeCircleWithRandomColor() {
+	let colors = ["#393E41", "#E94F37", "#1C89BF", "#A1D363"];
+	let randomColor = colors[~~(Math.random() * colors.length)];
+
+	return <Circle bgColor={randomColor}/>;
+
+}
+
+
+function makeColoredCircles() {
+	// add a key attribute to each Circle component to fix warning
+
+	let circleColors = ["#393E41", "#E94F37", "#1C89BF", "#A1D363", "#85FFC7", "#297373", "#FF8552", "#A40E4C"];
+	let circles = [];
+
+	circleColors.forEach((val, idx) => {
+		circles.push(<Circle key={idx} bgColor={val}/>);
+	});
+
+	return circles;
+}
+
+
+
+// Using an array of elements in render() works, but causes a React warning:
+//    Warning: Each child in an array or iterator should have a unique key prop
+ReactDOM.render(
+	<div>
+		{makeColoredCircles()}
+	</div>, testContainer);
+
 export default App;
+
+
+
+
+
+
+
+
+// Events
+// In React, listen to an event by specifying both the event and the event handler inside the JSX markup for the component
+
+class Counter extends React.Component {
+	render() {
+		return (
+			<div className="counter textStyle">
+				{this.props.display}
+			</div>
+		)
+	}
+}
+
+class CounterParent extends React.Component {
+
+	state = {
+		count: 0
+	};
+
+	render() {
+		return (
+			<div className="counterParent backgroundStyle">
+				<Counter display={this.state.count}/>
+				<button className="counterParent buttonStyle" onClick={this.increase}>+</button>
+			</div>
+		)
+	}
+
+	increase = (event) => {
+		let currentCount = this.state.count;
+
+		if (event.shiftKey) {
+			currentCount += 10;
+		}
+		else {
+			currentCount++;
+		}
+
+		this.setState({
+			count: currentCount
+		});
+	}
+}
+
+
+
+ReactDOM.render(<CounterParent/>, testContainer);

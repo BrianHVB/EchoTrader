@@ -47,3 +47,48 @@
 .cards {
 
 }
+
+.lightningCounterDisplay {
+    width: 250px;
+    text-align: center;
+    background-color: black;
+    padding: 40px;
+    font-family: sans-serif;
+    color: #999;
+    border-radius: 10px;
+}
+
+.circle {
+    width: 100px;
+    height: 100px;
+    padding: 10px;
+    margin: 20px;
+    display: inline-block;
+    border-radius: 50%;
+
+}
+.counter.textStyle {
+    font-size: 72px;
+    font-family: sans-serif;
+    color: #333;
+    font-weight: bold;
+}
+
+.counterParent.backgroundStyle {
+    width: 250px;
+    height: 100px;
+    padding: 50px;
+    background-color: #FFC53A;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.contentParent.buttonStyle {
+    font-size: 1em;
+    width: 30px;
+    height: 30px;
+    font-family: sans-serif;
+    color: #333;
+    font-weight: bold;
+    line-height: 3px;
+}
