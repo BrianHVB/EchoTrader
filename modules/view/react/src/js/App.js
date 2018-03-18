@@ -4,6 +4,7 @@ import ReactDOM from "react-dom";
 import "./../css/app.css";
 
 
+
 const newElem = function(parent) {
 	return parent.appendChild(document.createElement("div"));
 };
@@ -336,6 +337,7 @@ class LightningCounter extends React.Component {
 
 }
 
+
 class LightningCounterDisplay extends React.Component {
 
 	render() {
@@ -492,6 +494,202 @@ class CounterParent extends React.Component {
 	}
 }
 
-
-
 ReactDOM.render(<CounterParent/>, testContainer);
+
+// can't listen for events directly on components, need to reference an event handler as a prop instead
+class MinusButton extends React.Component {
+	render() {
+		return (
+			<div>
+				<button onClick={this.props.clickHandler}>
+					-
+				</button>
+			</div>
+		)
+	}
+}
+
+class MinusCounterParent extends React.Component {
+
+	state = {
+		count: 0
+	};
+
+	render() {
+		return (
+			<div className="counterParent backgroundStyle">
+				<Counter display={this.state.count}/>
+				<MinusButton clickHandler={() => this.setState({count: --this.state.count})}/>
+			</div>
+		);
+	}
+}
+
+ReactDOM.render(<MinusCounterParent/>, testContainer);
+
+
+
+// some DOM events don't have React equivalents. Need to add them using addEventListener() when component loads
+// make sure to remove them as well
+
+class SizeDisplay extends React.Component {
+
+	state = {
+		x: window.innerWidth,
+		y: window.innerHeight
+	};
+
+	componentDidMount() {
+		window.addEventListener("resize", this.handleWindowResize);
+
+
+	}
+
+	render() {
+		return (
+			<div>
+				{this.state.x} X {this.state.y}
+			</div>
+		)
+	}
+
+	componentWillUnmount() {
+		window.removeEventListener("resize", this.handleWindowResize);
+
+
+	}
+
+	handleWindowResize = (event) => {
+		this.setState({
+			x: window.innerWidth,
+			y: window.innerHeight
+		});
+	}
+}
+
+ReactDOM.render(<SizeDisplay/>, testContainer);
+
+
+
+
+
+
+
+
+// Using refs
+
+
+
+/*
+
+creates a simple color picker using form controls and property references to handlers
+
+The ColorContainer has two sub-components, a ColorSquare and an ColorForm. The ColorSquare is
+updated when a change occurs by way of using state.color, which is incorporated into the style
+object for the  ColorSquare sub-component by way of a property. That is, ColorContainer holds state.color
+and then creates a color property on ColorSquare that links to state.color.
+ColorSquare then incorporates this property into the style object. ColorContainer also has a simple method for updating state
+which is passes to ColorForm as a property
+
+The ColorForm has two elements, a text input and a button. Each of these elements has a ref() property that simply
+creates a reference to the element and stores it under (this). ColorForm also has a onSubmit() handler that uses these
+references to read the value from the text input, call the parent (ColorContainer) changeColor() method with the new color,
+clear the input and return focus
+
+All of the methods and handlers are created using class properties and arrow functions which keeps "this" referring to the component
+
+
+*/
+
+class ColorContainer extends React.Component {
+
+	state = {
+		color: "white"
+	};
+
+	render() {
+		let containerStyle = {
+			height: 330,
+			width: 250,
+			border: "1px dashed black",
+			backgroundColor: "lightgray"
+		};
+
+		return (
+			<div style={containerStyle}>
+				<ColorSquare color={this.state.color}/>
+				<ColorForm changeColor={this.changeColor}/>
+			</div>
+		);
+	}
+
+	changeColor = (newColor) => {
+		this.setState({
+			color: newColor || "white"
+		})
+	}
+}
+
+class ColorSquare extends React.Component {
+	render() {
+
+		let squareStyle = {
+			height: 200,
+			width: 200,
+			marginTop: 20,
+			marginLeft: "auto",
+			marginRight: "auto",
+			border: "1px solid black",
+			backgroundColor: this.props.color
+		};
+
+		return (
+			<div style={squareStyle}/>
+		)
+	}
+}
+
+
+class ColorForm extends React.Component {
+
+	componentDidMount() {
+		this._textBox.focus();
+	}
+
+	render() {
+
+		const textAreaStyle = {
+			marginTop: 30,
+			marginLeft: "auto",
+			marginRight: "auto",
+			display: "block"
+		};
+
+		const buttonStyle = {
+			marginTop: 15,
+			marginLeft: "auto",
+			marginRight: "auto",
+			display: "block"
+		};
+
+		return (
+			<div>
+				<form onSubmit={this.onFormSubmit}>
+					<input style={textAreaStyle} ref={elem => this._textBox = elem}/>
+					<button style={buttonStyle}  ref={elem => this._button = elem}>pick</button>
+				</form>
+			</div>
+		)
+	}
+
+	onFormSubmit = (event) => {
+		this.props.changeColor(this._textBox.value);
+		this._textBox.value = "";
+		this._textBox.focus();
+		event.preventDefault();
+	}
+
+
+}
+
+ReactDOM.render(<ColorContainer/>, testContainer);
