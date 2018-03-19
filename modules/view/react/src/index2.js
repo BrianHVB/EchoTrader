@@ -1,7 +1,12 @@
-alert("!");
+import "./js/SPAExample";
 
-const msg = "Hello Multiverse 2";
+
+
+const msg = "Hello I'm index2";
 const doIt = () => console.log(msg);
 doIt();
+
+
+
 
 
