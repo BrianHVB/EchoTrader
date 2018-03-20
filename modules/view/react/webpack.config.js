@@ -3,8 +3,9 @@ const path = require('path');
 
 module.exports = {
 	entry: {
-		'main': './src/index.js',
-		'main2': `./src/index2.js`
+		// 'samples': './src/samples.js',
+		// "spaExample": `./src/spaExample.js`
+		todoList: './src/todoListApp.js'
 	},
 	output: {
 		path: path.resolve(__dirname, 'dist'),
@@ -39,15 +40,25 @@ module.exports = {
 	},
 
 	plugins: [
+		// new HtmlWebPackPlugin({
+		// 	template: "./src/html/index.html",
+		// 	filename: "./samples.html",
+		// 	chunks: [`samples`]
+		// }),
+		// new HtmlWebPackPlugin({
+		// 	template: "./src/html/index.html",
+		// 	filename: "./index.html",
+		// 	chunks: [`spaExample`]
+		// }),
 		new HtmlWebPackPlugin({
 			template: "./src/html/index.html",
 			filename: "./index.html",
-			chunks: [`main`]
-		}),
-		new HtmlWebPackPlugin({
-			template: "./src/html/index.html",
-			filename: "./index2.html",
-			chunks: [`main2`]
+			chunks: [`todoList`]
 		})
-	]
+	],
+
+	devServer: {
+		historyApiFallback: true,
+		open: true
+	}
 };
