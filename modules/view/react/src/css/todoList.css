@@ -1,0 +1,51 @@
+body {
+    padding: 50px;
+    background-color: #111111;
+    font-family: sans-serif;
+}
+
+.todoListContainer {
+    background-color: black;
+    display: inline-block;
+    padding: 10px 10px 0px 10px;
+}
+
+.todoListContainer form input {
+    padding: 10px;
+    font-size: 16px;
+    background-color: black;
+    color: yellow;
+    margin: 10px;
+}
+
+.todoListContainer form button {
+    padding: 10px;
+    font-size: 16px;
+    margin: 10px;
+    background-color: darkred;
+    color: white;
+    border: 2px solid darkred;
+    border-radius: 10%;
+}
+
+.todoListContainer form button:hover {
+    /*background-color: maroon;*/
+    border-color: maroon;
+    cursor: pointer;
+    box-shadow: 3px 3px #000088;
+    border-radius: 15%;
+}
+
+.taskList {
+    list-style: none;
+    padding-left: 0;
+    width: 255px;
+}
+
+.taskList li {
+    background-color: rgba(204, 0, 0, .5);
+    color: white;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
