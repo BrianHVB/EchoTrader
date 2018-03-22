@@ -5,7 +5,8 @@ module.exports = {
 	entry: {
 		// 'samples': './src/samples.js',
 		// "spaExample": `./src/spaExample.js`
-		todoList: './src/todoListApp.js'
+		// todoList: './src/todoListApp.js'
+		tttExample: './src/tttExampleApp.js'
 	},
 	output: {
 		path: path.resolve(__dirname, 'dist'),
@@ -50,11 +51,16 @@ module.exports = {
 		// 	filename: "./index.html",
 		// 	chunks: [`spaExample`]
 		// }),
-		new HtmlWebPackPlugin({
-			template: "./src/html/index.html",
-			filename: "./index.html",
-			chunks: [`todoList`]
-		})
+		// new HtmlWebPackPlugin({
+		// 	template: "./src/html/index.html",
+		// 	filename: "./index.html",
+		// 	chunks: [`todoList`]
+		// })
+			new HtmlWebPackPlugin({
+				template: "./src/html/index.html",
+				filename: "./index.html",
+				chunks: ['tttExample']
+			})
 	],
 
 	devServer: {
