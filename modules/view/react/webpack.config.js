@@ -3,10 +3,7 @@ const path = require('path');
 
 module.exports = {
 	entry: {
-		// 'samples': './src/samples.js',
-		"spaExample": `./src/spaExample.js`
-		// todoList: './src/todoListApp.js'
-		//tttExample: './src/tttExampleApp.js'
+		"marketWatchApp": `./src/marketWatchApp.js`
 	},
 	output: {
 		path: path.resolve(__dirname, 'dist'),
@@ -49,7 +46,7 @@ module.exports = {
 		new HtmlWebPackPlugin({
 			template: "./src/html/index.html",
 			filename: "./index.html",
-			chunks: [`spaExample`]
+			chunks: [`marketWatchApp`]
 		}),
 		// new HtmlWebPackPlugin({
 		// 	template: "./src/html/index.html",
@@ -66,5 +63,12 @@ module.exports = {
 	devServer: {
 		historyApiFallback: true,
 		open: true
+	},
+
+	resolve: {
+		modules: [
+			path.resolve(__dirname, 'src'),
+			"node_modules",
+		]
 	}
 };
