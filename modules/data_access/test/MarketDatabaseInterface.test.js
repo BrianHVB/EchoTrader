@@ -14,7 +14,7 @@ const DataInterface = require('../lib/MarketDatabaseInterface');
 let dataInt;
 let testRecord;
 
-let testTable = 'gdax_btc_usd';
+let testTable = 'gdax_test';
 
 before(function() {
 
