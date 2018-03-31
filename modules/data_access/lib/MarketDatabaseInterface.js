@@ -226,6 +226,41 @@ class DataInterface {
 
 		return this.query(text, values);
 	}
+
+	async getLastId(tableName = this.table) {
+		await this.throwErrorIfInvalidTable(tableName);
+
+		let text = `SELECT id
+						FROM ${tableName} 
+						ORDER BY id DESC
+						LIMIT 1;`;
+
+		let result = await this.query(text, null);
+
+		return result[0].id;
+	}
+
+	async getNewestRecordByTimeClose(tableName = this.table) {
+		let text = `SELECT *
+						FROM ${tableName}
+						ORDER BY time_close DESC
+						LIMIT 1;`;
+
+		let result = await this.query(text, null);
+
+		return result[0];
+	}
+
+	async getNewestRecords(numRecords = 1, tableName = this.table) {
+
+		const limitNumber = Math.max(~~Number(numRecords), 0);    // ~~ is a binary shortcut for stripping decimals
+		let text = `SELECT *
+						FROM ${tableName}
+						ORDER BY id DESC
+						LIMIT ${limitNumber};`;
+
+		return this.query(text, null);
+	}
 }
 
 module.exports = DataInterface;

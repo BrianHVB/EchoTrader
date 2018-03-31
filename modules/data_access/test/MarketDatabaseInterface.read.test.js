@@ -38,10 +38,40 @@ describe('Read market data', function() {
 		})
 	});
 
-	describe('#getLastId()', function() {
-		it('should return the ID of the record with the newest time', function() {
-			di.getLastId().should.eventaully.be(52191);
+	describe('#getLatestRecordByTimeClose()', function() {
+		it('should return a record with the same id as getLastId()', function() {
+
+			let testEqual = async function() {
+				let lastRecord = await di.getNewestRecordByTimeClose();
+				let lastId = await di.getLastId();
+
+				return lastRecord.id === lastId;
+			};
+
+			return testEqual().should.eventually.be.true;
 		})
+	});
+
+	describe(`#getNewestRecords()`, function() {
+
+		it('should return 100 records when one hundred records are requested', function() {
+			let targetNum = 100;
+			return di.getNewestRecords(targetNum).then(res => res.length).should.eventually.equal(targetNum);
+		});
+
+		it ('should return the 1 newest record when no number is specified', function() {
+
+			let checkEqual = async function() {
+				let noParamResult = await di.getNewestRecords();
+				let lastId = await di.getLastId();
+
+				return noParamResult[0].id === lastId;
+			};
+
+			return checkEqual().should.eventually.be.true;
+
+		})
+
 	})
 });
 
