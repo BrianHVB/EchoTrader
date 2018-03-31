@@ -3,6 +3,7 @@
 let config = {};
 
 config.env = 'development';
-config.hostname = 'unknown';
+
+
 
 module.exports = config;
