@@ -3,6 +3,9 @@
 let config = {};
 
 config.env = 'development';
-config.hostname = 'unknown';
+
+
+
+config.MarketDatabaseInterface = './../../data_access/lib/MarketDatabaseInterface';
 
 module.exports = config;
