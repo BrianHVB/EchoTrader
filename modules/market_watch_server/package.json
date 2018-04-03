@@ -19,7 +19,8 @@
   },
   "devDependencies": {
     "chai": "^4.1.2",
-    "chai-as-promised": "^7.1.1"
+    "chai-as-promised": "^7.1.1",
+    "supertest": "^3.0.0"
   },
   "description": "REST server for providing market data from database",
   "main": "app.js",
