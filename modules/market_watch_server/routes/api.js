@@ -1,79 +1,63 @@
 const appRoot = require('app-root-path');
+const logger = require(`${appRoot}/config/winston`);
+
 const express = require('express');
 const router = express.Router();
 
 const config = require(`${appRoot}/config`);
 
 const DatabaseInterface = require(config.MarketDatabaseInterface);
-
-let marketConfig = {
-	exchange: 'GDAX',
-	currency: 'BTC',
-	baseCurrency: 'USD'
-};
-
-const dbInterface = new DatabaseInterface('GDAX', marketConfig);
+const dbInterface = new DatabaseInterface('GDAX');
 
 
-const logger = require(`${appRoot}/config/winston`);
-
-
+// get_newest
 router.get('/get_newest/:market', function(req, res, next) {
 	const market = req.params.market;
 	const numRecordsRequested = req.query.num || 1;
 
 	logger.info(`api::get_newest::\t market: [${market}] numRequested: [${numRecordsRequested}]`);
 
+	const invalidResponseBody = {
+		message: `Invalid request: [${market}] is not a valid market`,
+		data: null,
+		count: 0
+	};
+
 	// invalid market name
 	if (!config.markets.map(obj => obj.name).includes(market)) {
 		const errorMsg = `Invalid request: [${market}] is not a valid market`;
-		res.status(400).json({
-			message: errorMsg,
-			data: null,
-			records: 0
-		});
+		res.status(400).json(invalidResponseBody);
 
-		logger.error(errorMsg);
+		logger.error(invalidResponseBody.message);
 		return;
 	}
 
-	logger.info('api::get_newest::processing querying database');
+	logger.info('api::get_newest::processing\t querying database');
 
 	dbInterface.getNewestRecords(numRecordsRequested, market)
 		.then(data => {
-			res.status(200).json({
+			const validResponseBody = {
+				message: 'success',
 				data: data,
-				records: data.length,
-				message: 'hhh'
-				});
+				count: data.length,
+			};
+			res.status(200).json(validResponseBody);
 
-			logger.info(`api::get_newest::response message: ok records: ${data.length}`);
-			logger.debug(res.message);
-
+			logger.info(`api::get_newest::response\t message: [${validResponseBody.message}]\t records: [${data.length}]`);
 
 		})
 		.catch(err => {
 			res.status(400).json({
 				message: err,
 				data: err,
-				records: 0
+				count: 0
 			});
 
-			logger.error(err);
-
-		})
-
-
-
+			logger.error(`api::get_newest::response\t ${err}`);
+		});
 
 });
 
-
-
-
-
-//logger.debug(config.MarketDatabaseInterface);
-//logger.debug(config);
 
 
 module.exports = router;

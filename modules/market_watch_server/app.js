@@ -54,6 +54,11 @@ app.use(function(err, req, res, next) {
 
 winston.debug('app.js loaded');
 
+app.closeDbConnection = function() {
+	let conn = new (require(config.MarketDatabaseInterface))();
+	conn.close();
+};
+
 module.exports = app;
 
 

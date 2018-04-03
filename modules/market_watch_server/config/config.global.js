@@ -6,6 +6,6 @@ config.env = 'development';
 
 
 
-config.MarketDatabaseInterface = './../../data_access/lib/MarketDatabaseInterface';
+config.MarketDatabaseInterface = 'D:\\gdrive\\Projects\\EchoTrader\\modules\\data_access\\lib\\MarketDatabaseInterface.js';
 
 module.exports = config;
