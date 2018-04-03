@@ -1,3 +1,5 @@
+const appRoot = require('app-root-path');
+
 const chai = require('chai');
 const expect = require('chai').expect;
 require('chai').should();
@@ -6,6 +8,9 @@ chai.use(chaiAsPromised);
 
 const superTest = require('supertest');
 const app = require('./../app');
+
+const dbConnection = require(`${appRoot}/lib/dbConnection`);
+
 
 let request;
 let server;
@@ -16,7 +21,7 @@ before(function(done) {
 });
 
 after(function(done) {
-	app.closeDbConnection();
+	dbConnection.close()
 	server.close(done);
 });
 

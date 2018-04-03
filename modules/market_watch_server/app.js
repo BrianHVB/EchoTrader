@@ -1,30 +1,35 @@
-const createError = require('http-errors');
 const express = require('express');
+
 const path = require('path');
 const appRoot = require('app-root-path');
-const cookieParser = require('cookie-parser');
+
+const config = require(`${appRoot}/config`);
+
+const createError = require('http-errors');
 
 const winston = require(`${appRoot}/config/winston`);
 const morgan = require('morgan');
 
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
 const apiRouter = require('./routes/api');
 
-const config = require('./config');
+const dbConnection = require(`${appRoot}/lib/dbConnection`);
+
 
 const app = express();
 
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+// app.set('views', path.join(__dirname, 'views'));
+// app.set('view engine', 'jade');
 
+// The app will use Morgan for request logging, but we want Morgan to use Winston.
 app.use(morgan(config.logging.morgan.format, {
 	stream: winston.stream
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
+
 //app.use(cookieParser());
 //app.use(express.static(path.join(__dirname, 'public')));
 
@@ -55,8 +60,7 @@ app.use(function(err, req, res, next) {
 winston.debug('app.js loaded');
 
 app.closeDbConnection = function() {
-	let conn = new (require(config.MarketDatabaseInterface))();
-	conn.close();
+	dbConnection.close();
 };
 
 module.exports = app;
