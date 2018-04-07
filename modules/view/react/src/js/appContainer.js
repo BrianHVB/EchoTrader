@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom';
 
 import 'css/appContainer.css';
 
+// component imports
+import MarketTable from './marketTable';
+
 const target = document.getElementById('app');
 
 class App extends React.Component {
@@ -27,12 +30,7 @@ class App extends React.Component {
 				</section>
 
 				<section id="market-data">
-					table
-					open, high, low, close, volume, time, etc
-					entry 1
-					entry 2
-					entry 3
-					...
+					<MarketTable market={'gdax-btc-usd'}/>
 				</section>
 				<section id="charts">
 					Candle stick chart
