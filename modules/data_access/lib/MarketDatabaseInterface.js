@@ -241,6 +241,8 @@ class DataInterface {
 	}
 
 	async getNewestRecordByTimeClose(tableName = this.table) {
+		await this.throwErrorIfInvalidTable(tableName);
+
 		let text = `SELECT *
 						FROM ${tableName}
 						ORDER BY time_close DESC
@@ -252,6 +254,7 @@ class DataInterface {
 	}
 
 	async getNewestRecords(numRecords = 1, tableName = this.table) {
+		await this.throwErrorIfInvalidTable(tableName);
 
 		const limitNumber = Math.max(~~Number(numRecords), 0);    // ~~ is a binary shortcut for stripping decimals
 		let text = `SELECT *
