@@ -7,6 +7,7 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 
 const superTest = require('supertest');
+
 const app = require('./../app');
 
 const dbConnection = require(`${appRoot}/lib/dbConnection`);
@@ -16,12 +17,13 @@ let request;
 let server;
 
 before(function(done) {
+	process.env['NODE_ENV'] = 'test';
 	server = app.listen(done);
 	request = superTest.agent(server);
 });
 
 after(function(done) {
-	dbConnection.close()
+	dbConnection.close();
 	server.close(done);
 });
 

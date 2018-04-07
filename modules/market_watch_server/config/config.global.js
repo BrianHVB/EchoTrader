@@ -2,7 +2,12 @@
 
 let config = {};
 
-config.env = 'development';
+config.env = process.env.NODE_ENV  || 'development';
+
+config.express = {
+	host: 'localhost',
+	port: 8090
+};
 
 
 

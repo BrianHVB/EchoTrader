@@ -11,6 +11,7 @@ const winston = require(`${appRoot}/config/winston`);
 const morgan = require('morgan');
 
 const apiRouter = require('./routes/api');
+const indexRouter = require('./routes/index');
 
 const dbConnection = require(`${appRoot}/lib/dbConnection`);
 
@@ -19,8 +20,8 @@ const app = express();
 
 
 // view engine setup
-// app.set('views', path.join(__dirname, 'views'));
-// app.set('view engine', 'jade');
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
 
 // The app will use Morgan for request logging, but we want Morgan to use Winston.
 app.use(morgan(config.logging.morgan.format, {
@@ -31,9 +32,9 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
 //app.use(cookieParser());
-//app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
-//app.use('/', indexRouter);
+app.use('/', indexRouter);
 //app.use('/users', usersRouter);
 app.use('/api', apiRouter);
 
@@ -62,6 +63,14 @@ winston.debug('app.js loaded');
 app.closeDbConnection = function() {
 	dbConnection.close();
 };
+
+winston.info(`NODE_ENV = ${process.env.NODE_ENV}`);
+winston.info(`config.env = ${config.env}`);
+
+if (config.env !== 'test') {
+	app.listen(config.express.port);
+	winston.info(`listening on port ${config.express.port}`);
+}
 
 module.exports = app;
 
