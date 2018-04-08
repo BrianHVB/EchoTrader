@@ -28,7 +28,7 @@ function parseData() {}
 export function getData() {
 	return request
 		.get('http://localhost:8090/api/get_newest/gdax_btc_usd')
-		.query({num: 20})
+		.query({num: 5000})
 		.then(res => {
 			return res.body.data;
 		})
