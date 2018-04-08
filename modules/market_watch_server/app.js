@@ -34,6 +34,15 @@ app.use(express.urlencoded({extended: false}));
 //app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// allow cross-domain requests from local dev server
+if (config.env === 'development') {
+	winston.info("adding cross-domain allow as middleware");
+	app.use((req, res, next) =>{
+		res.header('Access-Control-Allow-Origin', 'http://localhost:8080');
+		next();
+	})
+}
+
 app.use('/', indexRouter);
 //app.use('/users', usersRouter);
 app.use('/api', apiRouter);

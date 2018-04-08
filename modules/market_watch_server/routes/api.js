@@ -41,6 +41,7 @@ router.get('/get_newest/:market', function(req, res, next) {
 				data: data,
 				count: data.length,
 			};
+
 			res.status(200).json(validResponseBody);
 
 			logger.info(`api::get_newest::response\t message: [${validResponseBody.message}]\t records: [${data.length}]`);
