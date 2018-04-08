@@ -21,11 +21,19 @@
   "homepage": "https://github.com/BrianHVB/EchoTrader#readme",
   "dependencies": {
     "classnames": "^2.2.5",
+    "d3-dsv": "^1.0.8",
+    "d3-format": "^1.2.2",
+    "d3-scale": "^2.0.0",
+    "d3-time-format": "^2.1.1",
     "lodash": "^4.17.5",
+    "prop-types": "^15.6.1",
     "react": "^16.2.0",
+    "react-bootstrap": "^0.32.1",
     "react-dom": "^16.2.0",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
+    "react-stockcharts": "^0.7.4",
+    "react-table": "^6.8.0",
     "superagent": "^3.8.2"
   },
   "devDependencies": {

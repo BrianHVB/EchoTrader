@@ -5,6 +5,7 @@ import 'css/appContainer.css';
 
 // component imports
 import MarketTable from './marketTable';
+import ChartComponent from '../charts/intra-candle-1/index';
 
 const target = document.getElementById('app');
 
@@ -33,7 +34,7 @@ class App extends React.Component {
 					<MarketTable market={'gdax-btc-usd'}/>
 				</section>
 				<section id="charts">
-					Candle stick chart
+					<ChartComponent/>
 				</section>
 			</div>
 		)

@@ -1,0 +1,45 @@
+.container {
+
+}
+
+.table-container {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    overflow-scrolling: auto;
+
+    background-color: #eeeeee;
+
+
+}
+
+.ReactTable {
+    border: 1px solid black;
+    width: auto;
+    max-width: 1000px;
+    height: 400px;
+}
+
+.ReactTable .rt-thead {
+    background-color: cornflowerblue;
+
+
+}
+
+.ReactTable .rt-thead .rt-tr {
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 1px solid black;
+}
+
+.ReactTable .rt-thead .rt-th, .ReactTable .rt-thead .rt-td {
+    border-right: 1px solid darkblue;
+}
+
+.ReactTable .rt-tbody .rt-td {
+    border-right: 1px solid lightgray;
+}
+
+.left-align-text {
+    text-align: left;
+}
