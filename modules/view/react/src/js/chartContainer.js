@@ -8,16 +8,19 @@ import { getData } from "../charts/intra-candle-1/utils"
 
 export default class ChartContainer extends React.Component {
 	componentDidMount() {
-		getData().then(data => {
-			this.setState({ data })
-		})
+
 	}
 	render() {
-		if (this.state == null) {
+
+		if (this.props.data == null) {
+			log.log("no data yet");
 			return <div>Loading...</div>
 		}
+
+
+		log.log("data loaded -- creating chart");
 		return (
-			<Chart type={"hybrid"} data={this.state.data} ratio={1} />
+			<Chart type={"hybrid"} data={this.props.data} ratio={1} />
 		)
 	}
 }

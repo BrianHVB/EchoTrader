@@ -1,3 +1,7 @@
+//logging
+import Logger from 'config/logger';
+const log = new Logger('appContainer');
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -7,9 +11,26 @@ import 'css/appContainer.css';
 import MarketTable from './marketTable';
 import ChartContainer from './chartContainer'
 
+// other imports
+import DataProvider from './dataProvider';
+import intervals from './intervals';
+
 const target = document.getElementById('app');
 
 class App extends React.Component {
+
+	state = {data: null};
+
+	componentWillMount() {
+		const dp = new DataProvider();
+		log.log(dp);
+		dp.getData(intervals.week, intervals.hour).then(d => {
+			//d.sort((a, b) => a.key - b.key);
+			this.setState({data: d});
+
+		})
+	}
+
 	render() {
 		return (
 			<div>
@@ -31,10 +52,11 @@ class App extends React.Component {
 				</section>
 
 				<section id="market-data">
-					<MarketTable market={'gdax-btc-usd'}/>
+					<MarketTable market={'gdax-btc-usd'} data={this.state.data}/>
 				</section>
+
 				<section id="charts">
-					<ChartContainer/>
+					<ChartContainer data={this.state.data}/>
 				</section>
 			</div>
 		)
