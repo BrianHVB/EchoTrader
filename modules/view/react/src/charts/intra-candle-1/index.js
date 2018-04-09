@@ -18,9 +18,7 @@ export default class ChartComponent extends React.Component {
 			return <div>Loading...</div>
 		}
 		return (
-			<TypeChooser>
-				{type => <Chart type={type} data={this.state.data} />}
-			</TypeChooser>
+			<Chart type={"hybrid"} data={this.state.data} ratio={1} />
 		)
 	}
 }

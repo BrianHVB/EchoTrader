@@ -41,7 +41,7 @@ export function getData() {
 					high: Number(row.high),
 					low: Number(row.low),
 					close: Number(row.close),
-					//volume: Number(row.volume_in) + Number(row.volume_out)
+					volume: (Number(row.volume_in) + Number(row.volume_out))
 				}
 			}).sort((a, b) => a.key - b.key)
 		})
