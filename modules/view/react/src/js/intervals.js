@@ -19,6 +19,7 @@ class ThirtySecond {
 	week =  this.day * 7 ;
 	month =  this.day * 30 ;
 	quarter =  this.day * 91.25 ;
+	year = this.day * 365;
 }
 
 const ts = new ThirtySecond();

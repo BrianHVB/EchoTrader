@@ -15,8 +15,6 @@ const indexRouter = require('./routes/index');
 
 const dbConnection = require(`${appRoot}/lib/dbConnection`);
 
-const cors = require('cors');
-
 
 const app = express();
 
@@ -24,22 +22,6 @@ const app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-
-winston.info('using cors');
-app.use(cors());
-
-
-if (config.env === 'production') {
-	winston.info("adding production cross-domain allow as middleware");
-	app.use((req, res, next) =>{
-		res.header('Access-Control-Allow-Origin', '*');
-		//res.header('Access-Control-Allow-Origin', 'http://127.0.0.1:8090');
-		//res.header('Access-Control-Allow-Methods', 'POST');
-		//res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-		next();
-	})
-}
-
 
 // The app will use Morgan for request logging, but we want Morgan to use Winston.
 app.use(morgan(config.logging.morgan.format, {
@@ -51,16 +33,6 @@ app.use(express.urlencoded({extended: false}));
 
 //app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-// allow cross-domain requests from local dev server
-if (config.env === 'development') {
-	winston.info("adding development cross-domain allow as middleware");
-	app.use((req, res, next) =>{
-		res.header('Access-Control-Allow-Origin', 'http://localhost:8080');
-		next();
-	})
-}
-
 
 app.use('/', indexRouter);
 //app.use('/users', usersRouter);

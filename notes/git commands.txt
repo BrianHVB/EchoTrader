@@ -3,8 +3,6 @@ git config --global core.editor "'path' 'options'"	: set git text editor
 git config --global core.editor "'D:\gdrive\`Apps\Notepad++\notepad++.exe' -multiInst -notabbar -nosession" 
 
 
-
-
 CREATE REPOSITORIES
 git clone [url] : Clone an existing repository
 git init : Create a new local repository
@@ -47,3 +45,13 @@ git fetch [remote] : Download all changes from [remote] but don’t integrate in
 git pull [remote] : Download all changes from [remote] and integrate to head
 git push[remote] : Publish local changes to remote repository
 git branch –dr [remote/branch] : Deletes a branch on the remote repository
+
+
+STATS
+apt-get install gitstats; gitstats ~/gitdir /tmp/output
+
+
+LOGS:
+git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+git lg
+

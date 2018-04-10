@@ -25,6 +25,7 @@
     "websocket": "^1.0.25"
   },
   "devDependencies": {
+    "chai-as-promised": "^7.1.1",
     "chai-things": "^0.2.0",
     "decache": "^4.4.0"
   }

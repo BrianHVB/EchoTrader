@@ -56,7 +56,7 @@ export default class MarketTable extends React.Component {
 		return (
 			<div className="container">
 				<div className="table-container">
-					<ReactTable columns={this.columns} data={data} showPagination={false} />
+					<ReactTable columns={this.columns} data={data} defaultPageSize={50} showPagination={true} />
 				</div>
 			</div>
 		)

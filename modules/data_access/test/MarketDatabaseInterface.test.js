@@ -75,7 +75,7 @@ describe('DataInterface', function() {
 	});
 
 	describe('Utility', function() {
-		it ('getDatabaseTime() should be within 1 second of local time', function() {
+		it ('getDatabaseTime() should be within 2 seconds of local time', function() {
 			let localTime = Date.now();
 
 			let res = dataInt.getDatabaseTime();
@@ -83,7 +83,7 @@ describe('DataInterface', function() {
 			return res.then(data => {
 				return Math.abs(localTime - Date.parse(data));
 			}).catch(err => console.error(err)
-			).should.eventually.be.within(0, 1000);
+			).should.eventually.be.within(0, 2000);
 		});
 
 		it ('buildInsertTemplate() should return an object with as many values as the test record', function() {

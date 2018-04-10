@@ -4,6 +4,8 @@ const log = new Logger('dataProvider');
 import request from "superagent";
 import _ from 'lodash';
 
+import config from 'config';
+
 
 
 
@@ -23,8 +25,9 @@ export default class DataProvider {
 
 
 	getRawData(points) {
+		const remoteUrl = (config.env === 'development') ? `http://localhost:8090` : `http://echogy.net:8090`;
 		return request
-			.get('http://localhost:8090/api/get_newest/gdax_btc_usd')
+			.get(`${remoteUrl}/api/get_newest/gdax_btc_usd`)
 			.query({num: points})
 			.then(res => {
 
