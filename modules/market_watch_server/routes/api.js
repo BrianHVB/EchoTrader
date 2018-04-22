@@ -1,13 +1,12 @@
 const appRoot = require('app-root-path');
+const config = require(`${appRoot}/config`);
 const logger = require(`${appRoot}/config/winston`);
-
 const express = require('express');
+
+const dbInterface = require(`${appRoot}/lib/dbConnection`);
+
 const router = express.Router();
 
-const config = require(`${appRoot}/config`);
-
-const DatabaseInterface = require(config.MarketDatabaseInterface);
-const dbInterface = new DatabaseInterface('GDAX');
 
 
 // get_newest
