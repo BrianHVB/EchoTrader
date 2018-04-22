@@ -7,7 +7,7 @@ const logger = new Winston.Logger(winstonConfig);
 
 logger.stream = {
 	write: function(message, encoding) {
-		logger.info('morgan: ' + message);
+		logger.silly('morgan: ' + message);
 	}
 };
 

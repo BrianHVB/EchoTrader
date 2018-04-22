@@ -4,36 +4,40 @@ const logger = require(`${appRoot}/config/winston`);
 const express = require('express');
 
 const dbInterface = require(`${appRoot}/lib/dbConnection`);
+const DataProvider = require(`${appRoot}/lib/DataProvider`);
 
 const router = express.Router();
+const dataProvider = new DataProvider();
 
 
+const isMarketValid = function(market) {
+	return config.markets.map(obj => obj.name).includes(market);
+};
 
-// get_newest
-router.get('/get_newest/:market', function(req, res, next) {
-	const market = req.params.market;
-	const numRecordsRequested = req.query.num || 1;
 
-	logger.info(`api::get_newest::\t market: [${market}] numRequested: [${numRecordsRequested}]`);
-
-	const invalidResponseBody = {
+const invalidMarketError = function(market) {
+	return {
 		message: `Invalid request: [${market}] is not a valid market`,
 		data: null,
 		count: 0
 	};
+};
+
+
+
+const handleMarketDataRequest =  function(req, res, next, dataMethod, params) {
+	const market = params.market;
+
 
 	// invalid market name
-	if (!config.markets.map(obj => obj.name).includes(market)) {
-		const errorMsg = `Invalid request: [${market}] is not a valid market`;
+	if (!isMarketValid(market)) {
+		const invalidResponseBody = invalidMarketError(market);
 		res.status(400).json(invalidResponseBody);
-
 		logger.error(invalidResponseBody.message);
 		return;
 	}
 
-	logger.info('api::get_newest::processing\t querying database');
-
-	dbInterface.getNewestRecords(numRecordsRequested, market)
+	dataMethod(market, params)
 		.then(data => {
 			const validResponseBody = {
 				message: 'success',
@@ -43,7 +47,7 @@ router.get('/get_newest/:market', function(req, res, next) {
 
 			res.status(200).json(validResponseBody);
 
-			logger.info(`api::get_newest::response\t message: [${validResponseBody.message}]\t records: [${data.length}]`);
+			logger.verbose(`api::${dataMethod.name}::response\t message: [${validResponseBody.message}]\t records: [${data.length}]`);
 
 		})
 		.catch(err => {
@@ -53,9 +57,35 @@ router.get('/get_newest/:market', function(req, res, next) {
 				count: 0
 			});
 
-			logger.error(`api::get_newest::response\t ${err}`);
+			logger.error(`api::${dataMethod.name}::response\t ${err}`);
 		});
 
+};
+
+// get_newest
+router.get('/get_newest/:market', (req, res, next) => {
+
+	const params = {
+		market: req.params.market,
+	   numRecordsRequested: req.query.num || 1
+	};
+
+	logger.verbose(`api::get_newest::request\t market=[${params.market}]\t numRequested=[${params.numRecordsRequested}]`);
+	handleMarketDataRequest(req, res, next, DataProvider.getNewestEntries, params)
+});
+
+// get_candles
+router.get('/get_candles/:market', (req, res, next) => {
+	const params = {
+		market: req.params.market,
+		numPoints: req.query.num_points || 1,
+		interval: req.query.interval || 1,
+
+	};
+
+	logger.verbose(`api::get_candles::request\t market=[${params.market}]\t ` +
+		`numPoints=[${params.numPoints}]\t interval=[${params.interval}]`);
+	handleMarketDataRequest(req, res, next, DataProvider.getCandles, params)
 });
 
 
