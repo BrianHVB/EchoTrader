@@ -1,0 +1,35 @@
+{
+  "name": "market-watch-server",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "cross-env NODE_ENV=production node ./bin/www",
+    "dev-server": "cross-env NODE_ENV=development nodemon",
+    "test": "mocha",
+    "coverage": "nyc --reporter=text mocha"
+  },
+  "dependencies": {
+    "app-root-path": "^2.0.1",
+    "cookie-parser": "~1.4.3",
+    "cors": "^2.8.4",
+    "cross-env": "^5.1.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.0",
+    "http-errors": "~1.6.2",
+    "jade": "~1.11.0",
+    "morgan": "~1.9.0",
+    "winston": "^2.4.1"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "supertest": "^3.0.0"
+  },
+  "description": "REST server for providing market data from database",
+  "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
+  "author": "Brian Houle",
+  "license": "ISC"
+}

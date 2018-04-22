@@ -1,0 +1,57 @@
+CONFIG
+git config --global core.editor "'path' 'options'"	: set git text editor
+git config --global core.editor "'D:\gdrive\`Apps\Notepad++\notepad++.exe' -multiInst -notabbar -nosession" 
+
+
+CREATE REPOSITORIES
+git clone [url] : Clone an existing repository
+git init : Create a new local repository
+ 
+
+TRACKING AND MAKING CHANGES
+git status : Lists changed files in the working directory
+git add [file] : Adds the specified file to the staging area
+git reset [file] : Unstages the file
+git diff : Shows file differences not yet staged
+git diff --staged : Shows file differences between staging and the last file version
+git commit : Commit local changes that were staged
+git commit --amend : Change the last commit
+git log : Show all commits
+git log –p : Show changes for a specific file
+git blame [file] : Shows who changed files and when it was changed
+git reset [commit] : Undoes all commits after the [commit]
+git reset --hard [commit] : Discards all history and changes back to the specified commit
+git reset –-hard HEAD : Discards all changes made to the working directory
+git rm [file] : Deletes the file from the working directory and stages the deletion
+
+BRANCH, MERGE AND REBASE
+git branch : Lists all local branches in the current repository
+git branch [branch-name] : Creates a new branch
+git checkout [branch-name] : Switches to the specified branch and updates the working directory
+git checkout –b [branch-name] : Creates and checkout a new branch
+git merge  : Combines the specified branch’s history into the current branch
+git branch –d/D [branch-name] : Deletes the specified branch
+git diff [first-branch] [second-branch] : Shows content differences between two branches
+git rebase  : rebase the current HEAD onto 
+git rebase –-abort : Abort a rebase
+git rebase –-continue : Continue a rebase
+git mergetool : Opens the mergetool to solve conflicts
+
+PUSH , PULL AND REMOTE REPOSITORY
+git remote –v : Shows all configured remote repositories
+git remote show [remote] : Shows information about the [remote]
+git remote add [name] [url] : Add new remote repository
+git fetch [remote] : Download all changes from [remote] but don’t integrate into HEAD
+git pull [remote] : Download all changes from [remote] and integrate to head
+git push[remote] : Publish local changes to remote repository
+git branch –dr [remote/branch] : Deletes a branch on the remote repository
+
+
+STATS
+apt-get install gitstats; gitstats ~/gitdir /tmp/output
+
+
+LOGS:
+git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+git lg
+
