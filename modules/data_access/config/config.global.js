@@ -2,7 +2,7 @@
 
 let config = {};
 
-config.env = 'development';
+//config.env = 'development';
 
 
 
