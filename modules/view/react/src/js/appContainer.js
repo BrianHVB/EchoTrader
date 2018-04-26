@@ -14,6 +14,7 @@ import 'css/appContainer.css';
 import MarketTable from './marketTable';
 import ChartContainer from './chartContainer'
 import ComboSelect from 'react-combo-select';
+import DataSelector from './dataSelector';
 
 // other imports
 import DataProvider from './dataProvider';
@@ -80,42 +81,30 @@ class App extends React.Component {
 					</nav>
 				</header>
 
-				<section id="markets" className="">
-					<ul className="horizontal-menu">
-						{/*<li className="menu-item">BTC-USD</li>*/}
-						{/*<li className="menu-item">ETH-USD</li>*/}
-						{/*<li className="menu-item">LTC-USD</li>*/}
-						<li className="menu-item">-- Currently viewing real-time harvested data on Bitcoin (BTC) from GDAX --</li>
-					</ul>
+				<section id="main">
+
+					<section id="markets" className="">
+						<ul className="horizontal-menu">
+							{/*<li className="menu-item">BTC-USD</li>*/}
+							{/*<li className="menu-item">ETH-USD</li>*/}
+							{/*<li className="menu-item">LTC-USD</li>*/}
+							<li className="menu-item">-- Currently viewing real-time harvested data on Bitcoin (BTC) from GDAX --</li>
+						</ul>
+					</section>
+
+					<DataSelector comboSelectHandler={this.comboSelectHandler} buttonClickHandler={this.buttonClickHandler}/>
+
+					<section id="charts">
+						<ChartContainer data={this.state.data}/>
+					</section>
+
+
+
+					<section id="market-data">
+						<MarketTable market={'gdax-btc-usd'} data={this.state.data}/>
+					</section>
+
 				</section>
-
-				<section id="data-selector">
-					<div className="table-cell">
-						<div className="option">
-							<label className="label">Period:</label>
-							<ComboSelect data={periodOptions} sort={"off"}  search="on" value={this.state.period}
-							             onChange={(val, text) => this.comboSelectHandler("period", val)}
-							/>
-						</div>
-						<div className="option">
-							<label className="label">Interval:</label>
-							<ComboSelect data={intervalOptions} sort={"off"} value={this.state.interval}
-							             onChange={(val, text) => this.comboSelectHandler("interval", val)}/>
-						</div>
-						<button onClick={this.buttonClickHandler}>go!</button>
-					</div>
-				</section>
-
-				<section id="charts">
-					<ChartContainer data={this.state.data}/>
-				</section>
-
-
-
-				<section id="market-data">
-					<MarketTable market={'gdax-btc-usd'} data={this.state.data}/>
-				</section>
-
 
 			</div>
 		);
