@@ -7,6 +7,7 @@ import React from 'react';
 
 //CSS imports
 import 'react-combo-select/style.css';
+import 'css/dataSelector.css';
 
 // component imports
 import ComboSelect from 'react-combo-select';
