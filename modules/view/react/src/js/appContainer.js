@@ -4,6 +4,12 @@ const log = new Logger('appContainer');
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {
+	HashRouter as Router,
+	Route,
+	NavLink,
+	Switch
+} from 'react-router-dom'
 
 //CSS imports
 import 'react-combo-select/style.css';
@@ -13,8 +19,8 @@ import 'css/appContainer.css';
 // component imports
 import MarketTable from './marketTable';
 import ChartContainer from './chartContainer'
-import ComboSelect from 'react-combo-select';
 import DataSelector from './dataSelector';
+import About from './about'
 
 // other imports
 import DataProvider from './dataProvider';
@@ -49,60 +55,47 @@ class App extends React.Component {
 	}
 
 	render() {
-
-		const timeOptions = Object.entries(intervals).map((key, value) => {
-			return {
-				text: key[0],
-				value: key[1]
-			}
-		});
-
-		const periodOptions = [
-			{text: "one hour", value: intervals["hour"]}, {text: "four hours", value: intervals["fourHour"]},
-			{text: "eight hours", value: intervals["eightHour"]}, {text: "twelve hours", value: intervals["twelveHour"]},
-			{text: "day", value: intervals["day"]}, {text: "week", value: intervals["week"]}, {text: "month", value: intervals["month"]}];
-
-		const intervalOptions = [
-			{text: "thirty seconds", value: intervals["base"]}, {text: "minute", value: intervals["minute"]},
-			{text: "five minutes", value: intervals["fiveMinute"]}, {text: "fifteen minutes", value: intervals["fifteenMinute"]},
-			{text: "half hour", value: intervals["halfHour"]},
-			{text: "one hour", value: intervals["hour"]}, {text: "four hours", value: intervals["fourHour"]},
-			{text: "eight hours", value: intervals["eightHour"]}, {text: "twelve hours", value: intervals["twelveHour"]},
-			{text: "day", value: intervals["day"]}, {text: "week", value: intervals["week"]}, {text: "month", value: intervals["month"]}];
-
 		return (
 			<div>
 				<header id="header">
 					<nav>
 						<ul className="horizontal-menu">
-							<li className="menu-item">home</li>
-							<li className="menu-item">about</li>
+							<li className="menu-item"><NavLink exact to="/" activeClassName="active">home</NavLink></li>
+							<li className="menu-item"><NavLink to="/about" activeClassName="active">about</NavLink></li>
 						</ul>
 					</nav>
 				</header>
 
 				<section id="main">
+					<Switch>
+						<Route exact path="/">
+							<div>
+								<section id="markets" className="">
+									<ul className="horizontal-menu">
+										{/*<li className="menu-item">BTC-USD</li>*/}
+										{/*<li className="menu-item">ETH-USD</li>*/}
+										{/*<li className="menu-item">LTC-USD</li>*/}
+										<li className="menu-item">-- Currently viewing real-time harvested data on Bitcoin (BTC) from GDAX --</li>
+									</ul>
+								</section>
 
-					<section id="markets" className="">
-						<ul className="horizontal-menu">
-							{/*<li className="menu-item">BTC-USD</li>*/}
-							{/*<li className="menu-item">ETH-USD</li>*/}
-							{/*<li className="menu-item">LTC-USD</li>*/}
-							<li className="menu-item">-- Currently viewing real-time harvested data on Bitcoin (BTC) from GDAX --</li>
-						</ul>
-					</section>
+								<DataSelector comboSelectHandler={this.comboSelectHandler} buttonClickHandler={this.buttonClickHandler}/>
 
-					<DataSelector comboSelectHandler={this.comboSelectHandler} buttonClickHandler={this.buttonClickHandler}/>
+								<section id="charts">
+									<ChartContainer data={this.state.data}/>
+								</section>
 
-					<section id="charts">
-						<ChartContainer data={this.state.data}/>
-					</section>
+								<section id="market-data">
+									<MarketTable market={'gdax-btc-usd'} data={this.state.data}/>
+								</section>
+							</div>
+						</Route>
+						<Route exact path="/about">
+							<About/>
+						</Route>
 
 
-
-					<section id="market-data">
-						<MarketTable market={'gdax-btc-usd'} data={this.state.data}/>
-					</section>
+					</Switch>
 
 				</section>
 
@@ -126,4 +119,9 @@ class App extends React.Component {
 	}
 }
 
-ReactDOM.render(<App/>, target);
+const router =
+	<Router>
+		<App/>
+	</Router>;
+
+ReactDOM.render(router, target);

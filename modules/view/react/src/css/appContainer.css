@@ -16,9 +16,15 @@
     padding: 0 0 0 20px;
 }
 
-#header .menu-item {
+#header .menu-item a {
     font-size: 26pt;
     margin: 0 30px 0 30px;
+    text-decoration: none;
+}
+
+
+#header .menu-item .active {
+    font-weight: bolder;
 }
 
 

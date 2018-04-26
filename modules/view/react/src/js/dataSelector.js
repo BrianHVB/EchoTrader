@@ -3,7 +3,7 @@ import Logger from 'config/logger';
 const log = new Logger('appContainer');
 
 import React from 'react';
-import ReactDOM from 'react-dom';
+
 
 //CSS imports
 import 'react-combo-select/style.css';
