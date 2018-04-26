@@ -3,11 +3,10 @@ const config = require(`${appRoot}/config`);
 const logger = require(`${appRoot}/config/winston`);
 const express = require('express');
 
-const dbInterface = require(`${appRoot}/lib/dbConnection`);
 const DataProvider = require(`${appRoot}/lib/DataProvider`);
+const dataProvider = new DataProvider();
 
 const router = express.Router();
-const dataProvider = new DataProvider();
 
 
 const isMarketValid = function(market) {
@@ -25,8 +24,8 @@ const invalidMarketError = function(market) {
 
 
 
-const handleMarketDataRequest =  function(req, res, next, dataMethod, params) {
-	const market = params.market;
+const handleMarketDataRequest =  function(req, res, next, market, dataMethod) {
+	//const market = params.market;
 
 
 	// invalid market name
@@ -37,7 +36,8 @@ const handleMarketDataRequest =  function(req, res, next, dataMethod, params) {
 		return;
 	}
 
-	dataMethod(market, params)
+
+	dataMethod()
 		.then(data => {
 			const validResponseBody = {
 				message: 'success',
@@ -71,7 +71,8 @@ router.get('/get_newest/:market', (req, res, next) => {
 	};
 
 	logger.verbose(`api::get_newest::request\t market=[${params.market}]\t numRequested=[${params.numRecordsRequested}]`);
-	handleMarketDataRequest(req, res, next, DataProvider.getNewestEntries, params)
+	handleMarketDataRequest(req, res, next,
+		params.market, dataProvider.getNewestEntries.bind(dataProvider, params))
 });
 
 // get_candles
@@ -85,7 +86,8 @@ router.get('/get_candles/:market', (req, res, next) => {
 
 	logger.verbose(`api::get_candles::request\t market=[${params.market}]\t ` +
 		`numPoints=[${params.numPoints}]\t interval=[${params.interval}]`);
-	handleMarketDataRequest(req, res, next, DataProvider.getCandles, params)
+	handleMarketDataRequest(req, res, next,
+		params.market, dataProvider.getCandles.bind(dataProvider, params))
 });
 
 
