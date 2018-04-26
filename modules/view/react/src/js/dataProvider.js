@@ -19,11 +19,29 @@ export default class DataProvider {
 	}
 
 	getData(numberOfDataPoints = 1000, interval = 1) {
+		const remoteUrl = config.dataSource;
+		return request
+			.get(`${remoteUrl}/api/get_candles/gdax_btc_usd`)
+			.query({num_points: numberOfDataPoints, interval: interval})
+			.then(res => {
+				res.body.data.forEach(itm => itm.date = new Date(itm.date));
+				log.table(res.body.data);
+				return res.body.data;
+			})
+	}
+
+	getData2(numberOfDataPoints = 1000, interval = 1) {
 		log.log(`getData(points=${numberOfDataPoints}, interval=${interval}`);
 		return this.getRawData(numberOfDataPoints)
 			.then(rawData => {
-				return (interval === 1) ? (rawData) : (DataProvider.aggregateData(rawData, interval));
+				log.log("rawData");
+				log.table(rawData);
+				const aggData = (interval === 1) ? (rawData) : (DataProvider.aggregateData(rawData, interval));
+				log.log("aggData");
+				log.table(aggData);
+				return aggData;
 			});
+
 	}
 
 
