@@ -20,6 +20,7 @@ import 'css/appContainer.css';
 // component imports
 import About from './about'
 import MarketInfoContainer from './MarketInfoContainer';
+import LivePriceGdax from './LivePriceGdax'
 
 // other imports
 import DataProvider from './dataProvider';
@@ -30,17 +31,20 @@ const target = document.getElementById('app');
 
 class App extends React.Component {
 
-
 	render() {
 		return (
-			<div>
+			<div id="app">
 				<header id="header">
-					<nav>
+
+					<nav id="nav-menu">
 						<ul className="horizontal-menu">
-							<li className="menu-item"><NavLink to="/home" activeClassName="active">home</NavLink></li>
-							<li className="menu-item"><NavLink to="/about" activeClassName="active">about</NavLink></li>
+							<li className="menu-item"><NavLink to="/home" activeClassName="active">Home</NavLink></li>
+							<li className="menu-item"><NavLink to="/about" activeClassName="active">About</NavLink></li>
 						</ul>
 					</nav>
+
+					<h2 id="title">EchoTrader - Market Watch</h2>
+
 				</header>
 
 				<section id="main">
@@ -50,9 +54,39 @@ class App extends React.Component {
 							<div>
 								<section id="markets" className="">
 									<ul className="horizontal-menu">
-										<li className="menu-item"><NavLink to="/home/gdax_btc_usd" activeClassName="active">BTC-USD</NavLink></li>
-										<li className="menu-item"><NavLink to="/home/gdax_eth_usd" activeClassName="active">ETH-USD</NavLink></li>
-										<li className="menu-item"><NavLink to="/home/gdax_ltc_usd" activeClassName="active">LTC-USD</NavLink></li>
+										<div className="menu-item">
+											<li><NavLink to="/home/gdax_btc_usd" activeClassName="active">
+												<span>BTC-USD</span>
+												<LivePriceGdax market={"BTC-USD"}/>
+											</NavLink></li>
+										</div>
+										<div className="menu-item">
+											<li><NavLink to="/home/gdax_eth_usd" activeClassName="active">
+												<span>ETH-USD</span>
+												<LivePriceGdax market={"ETH-USD"}/>
+											</NavLink></li>
+										</div>
+										<div className="menu-item">
+											<li><NavLink to="/home/gdax_bch_usd" activeClassName="active">
+												<span>BCH-USD</span>
+												<LivePriceGdax market={"BCH-USD"}/>
+											</NavLink></li>
+										</div>
+										<div className="menu-item">
+											<li><NavLink to="/home/gdax_ltc_usd" activeClassName="active">
+												<span>LTC-USD</span>
+												<LivePriceGdax market={"LTC-USD"}/>
+											</NavLink></li>
+										</div>
+										<div className="menu-item">
+											<li><NavLink to="/home/gdax_eth_btc" activeClassName="active">
+												<span>ETH-BTC</span>
+												<LivePriceGdax market={"ETH-BTC"}/>
+											</NavLink></li>
+										</div>
+
+
+
 										{/*<li className="menu-item">-- Currently viewing real-time harvested data on Bitcoin (BTC) from GDAX --</li>*/}
 									</ul>
 								</section>
@@ -61,7 +95,9 @@ class App extends React.Component {
 									<Redirect exact from="/home" to="/home/gdax_btc_usd"/>
 									{/*<Route path="/home/:market" component={MarketInfoContainer}/>*/}
 									<Route path="/home/:market" render={(props) => (
-										<MarketInfoContainer {...props}/>
+										<div id="market-info-container">
+											<MarketInfoContainer {...props}/>
+										</div>
 									)}/>
 
 

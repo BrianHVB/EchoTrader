@@ -1,0 +1,23 @@
+#live_price {
+    display: inline;
+    border: none;
+    margin: 0px auto;
+    padding: 0px auto;
+    alignment: center;
+}
+
+#live_price_direction {
+    display: inline;
+    margin-left: 4px;
+    margin-right: 4px;
+
+
+}
+
+#live_price_direction.up {
+    color: lightgreen;
+}
+
+#live_price_direction.down {
+    color: lightcoral;
+}

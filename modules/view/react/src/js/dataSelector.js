@@ -44,7 +44,7 @@ export default class DataSelector extends React.Component {
 				<div className="table-cell">
 					<div className="option">
 						<label className="label">Period:</label>
-						<ComboSelect data={this.periodOptions} sort={"off"}  search="on" value={this.state.period}
+						<ComboSelect data={this.periodOptions} sort={"off"} value={this.state.period}
 						             onChange={(val, text) => this.props.comboSelectHandler("period", val)}
 						/>
 					</div>

@@ -51,11 +51,11 @@ export default class MarketInfoContainer extends React.Component {
 
 	getData(market) {
 		const dp = new DataProvider();
-		log.log(dp);
-		log.log(this.props);
 		this.setState({data: null});
-		log.log(`market: ${this.props.match.params.market}`);
-		dp.getData(market, this.state.period, this.state.interval).then(d => {
+
+		const interval = this.state.interval ;
+		const periods = (this.state.period / interval);
+		dp.getData(market, periods, interval).then(d => {
 			this.setState({data: d});
 
 		})
@@ -63,7 +63,7 @@ export default class MarketInfoContainer extends React.Component {
 
 	render() {
 		return (
-			<section id="market-info-container">
+			<section id="market-info">
 
 				<DataSelector comboSelectHandler={this.comboSelectHandler} buttonClickHandler={this.buttonClickHandler}/>
 

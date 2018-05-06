@@ -25,7 +25,7 @@ export default class DataProvider {
 			.query({num_points: numberOfDataPoints, interval: interval})
 			.then(res => {
 				res.body.data.forEach(itm => itm.date = new Date(itm.date));
-				log.table(res.body.data);
+				//log.table(res.body.data);
 				return res.body.data;
 			})
 	}
