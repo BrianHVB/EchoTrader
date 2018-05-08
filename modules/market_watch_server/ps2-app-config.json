@@ -1,0 +1,10 @@
+{
+    "apps": [
+        {
+            "name": "market_watch_server",
+            "cwd": ".",
+            "script": "npm",
+            "args": "start"
+        }
+    ]
+}

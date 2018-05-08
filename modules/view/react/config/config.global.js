@@ -1,7 +1,7 @@
 // global defaults - this file SHOULD be committed to source control
 
 const config = {
-	env: `development`,
+	env: `production`,
 
 	gdax: {
 		host: `wss://ws-feed.gdax.com`,
@@ -17,7 +17,7 @@ const config = {
 };
 
 const production = {
-	dataSource: "http://echogy.net:8090",
+	dataSource: "https://echogy.net:8090",
 
 };
 
